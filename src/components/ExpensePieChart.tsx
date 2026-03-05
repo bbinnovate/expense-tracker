@@ -94,7 +94,6 @@ export function ExpensePieChart({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm">{item.icon}</span>
                 <span className="text-sm font-medium">{item.name}</span>
               </div>
               <div className="flex items-center gap-3">
