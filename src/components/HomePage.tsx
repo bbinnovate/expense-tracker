@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 import { BottomNav, NavTab } from "@/components/BottomNav";
 import { ExpenseEntry } from "@/components/ExpenseEntry";
 import { OverviewLog } from "@/components/OverviewLog";
@@ -61,11 +61,6 @@ export function HomePage() {
                 Sign In
               </button>
             </SignInButton>
-            <SignUpButton>
-              <button className="px-4 py-2 rounded-md border border-border font-medium hover:bg-muted transition">
-                Sign Up
-              </button>
-            </SignUpButton>
           </div>
         </div>
       </div>
