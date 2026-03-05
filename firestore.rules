@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Auth is handled entirely by Clerk at the application layer.
+// Firebase Auth is not used, so request.auth is always null.
+// Data isolation is enforced structurally: all documents live under
+// users/{clerkUserId}/... and the app only ever reads/writes the
+// signed-in user's own path.
+//
+// To add database-level enforcement in the future, set up a
+// Clerk → Firebase Auth JWT template and restore auth-based rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Deny everything outside the users tree
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

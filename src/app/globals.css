@@ -1,0 +1,245 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 90%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 90%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 90%;
+
+    --primary: 45 95% 55%;
+    --primary-foreground: 0 0% 7%;
+
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 75%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 45 60% 20%;
+    --accent-foreground: 45 90% 70%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 150 50% 40%;
+    --success-foreground: 150 50% 95%;
+
+    --warning: 30 90% 50%;
+    --warning-foreground: 30 90% 10%;
+
+    --border: 0 0% 16%;
+    --input: 0 0% 13%;
+    --ring: 45 95% 55%;
+
+    --radius: 0.75rem;
+
+    --glow-primary: 0 0 15px hsl(45 95% 55% / 0.25);
+    --glow-success: 0 0 12px hsl(150 50% 40% / 0.25);
+    --glow-warning: 0 0 12px hsl(30 90% 50% / 0.25);
+    --glow-destructive: 0 0 12px hsl(0 65% 55% / 0.25);
+
+    /* Category colors */
+    --category-groceries: 0 0% 55%;
+    --category-milk: 0 0% 60%;
+    --category-baby: 0 0% 50%;
+    --category-utilities: 0 0% 45%;
+    --category-transport: 0 0% 65%;
+    --category-eating-out: 0 0% 40%;
+    --category-salaries: 0 0% 58%;
+    --category-home-decor: 0 0% 52%;
+    --category-guests: 0 0% 48%;
+    --category-misc: 0 0% 42%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 26%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 91%;
+    --sidebar-ring: 45 95% 55%;
+  }
+
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 90%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 45 95% 55%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 75%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 45 60% 20%;
+    --accent-foreground: 45 90% 70%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 16%;
+    --input: 0 0% 13%;
+    --ring: 45 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .keypad-button {
+    @apply flex items-center justify-center rounded-xl text-2xl font-medium
+           text-foreground
+           transition-all duration-150 ease-out
+           active:scale-95;
+  }
+
+  .keypad-button-primary {
+    @apply bg-primary text-primary-foreground
+           hover:bg-primary/90 active:bg-primary/80;
+  }
+
+  .keypad-button-delete {
+    @apply text-destructive hover:bg-destructive/20;
+  }
+
+  .amount-display {
+    @apply font-mono text-3xl font-semibold tracking-tight;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center gap-1 py-2 px-4 rounded-xl
+           text-muted-foreground transition-all duration-200
+           hover:text-foreground hover:bg-secondary;
+  }
+
+  .nav-item-active {
+    @apply text-primary bg-accent;
+  }
+
+  .category-chip {
+    @apply px-4 py-3 rounded-xl text-sm font-medium
+           transition-all duration-150 ease-out
+           border border-transparent
+           active:scale-95;
+  }
+
+  .category-chip-selected {
+    @apply border-primary bg-accent shadow-[var(--glow-primary)];
+  }
+
+  .who-chip {
+    @apply px-5 py-3 rounded-full text-sm font-medium
+           bg-secondary text-secondary-foreground
+           transition-all duration-150 ease-out
+           active:scale-95;
+  }
+
+  .who-chip-selected {
+    @apply bg-primary text-primary-foreground shadow-[var(--glow-primary)];
+  }
+
+  .budget-bar {
+    @apply h-2 rounded-full bg-muted overflow-hidden;
+  }
+
+  .budget-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+  }
+
+  .expense-card {
+    @apply p-4 rounded-xl bg-card border border-border
+           transition-all duration-200 hover:border-primary/30;
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-success {
+    box-shadow: var(--glow-success);
+  }
+
+  .glow-warning {
+    box-shadow: var(--glow-warning);
+  }
+
+  .glow-destructive {
+    box-shadow: var(--glow-destructive);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  .animate-in-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-press {
+    animation: press 0.15s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes press {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 15px hsl(45 95% 55% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 25px hsl(45 95% 55% / 0.35);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}
