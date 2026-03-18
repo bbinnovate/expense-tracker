@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Category } from "@/types/expense";
 
 interface ExpensePieChartProps {
@@ -82,7 +82,7 @@ export function ExpensePieChart({
 
       {/* Legend */}
       <div className="space-y-2">
-        {data.map((item, index) => {
+        {data.map((item) => {
           const percentage = ((item.value / totalSpent) * 100).toFixed(1);
           return (
             <div

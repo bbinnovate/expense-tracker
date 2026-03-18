@@ -23,7 +23,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     };
 
     const displayAmount = value || "0";
-    const numericAmount = parseFloat(displayAmount) || 0;
 
     return (
       <div className="flex flex-col items-center gap-1">

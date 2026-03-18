@@ -134,7 +134,7 @@ export function ExpenseEntry({
         },
       });
     }
-  }, [amount, categoryId, whoSpent, description, date, onAddExpense]);
+  }, [amount, categoryId, whoSpent, description, date, onAddExpense, categories]);
 
   useEffect(() => {
     submitRef.current = handleSubmit;

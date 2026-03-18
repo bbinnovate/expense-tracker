@@ -78,7 +78,7 @@ export function NumericKeypad({
 
       {/* Keypad Grid */}
       <div className="grid grid-cols-3 gap-3 px-2">
-        {keys.map((row, rowIndex) =>
+        {keys.map((row) =>
           row.map((key) => (
             <button
               key={key}
