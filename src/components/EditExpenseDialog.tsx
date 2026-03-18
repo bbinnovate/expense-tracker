@@ -26,6 +26,7 @@ interface EditExpenseDialogProps {
     updates: Partial<Omit<Expense, "id" | "createdAt">>,
   ) => void;
   onAddMember: (name: string) => Promise<HouseholdMember | void>;
+  onUpdateMember: (id: string, name: string) => Promise<void>;
   onDeleteMember: (id: string) => void;
 }
 
@@ -36,6 +37,7 @@ export function EditExpenseDialog({
   onClose,
   onSave,
   onAddMember,
+  onUpdateMember,
   onDeleteMember,
 }: EditExpenseDialogProps) {
   const [amount, setAmount] = useState("");
@@ -100,6 +102,7 @@ export function EditExpenseDialog({
             members={members}
             onSelect={setWhoSpent}
             onAddMember={onAddMember}
+            onUpdateMember={onUpdateMember}
             onDeleteMember={onDeleteMember}
           />
 

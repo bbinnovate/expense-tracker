@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { ClerkProvider, UserButton, Show } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -12,6 +12,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -23,11 +24,6 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark">
         <body>
-          <header className="flex justify-end items-center px-4 py-2 border-b border-border">
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
-          </header>
           <Providers>{children}</Providers>
         </body>
       </html>

@@ -33,7 +33,14 @@ export function DateSelector({ date, onDateChange }: DateSelectorProps) {
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-            {isToday ? <span>Today</span> : format(date, "PPP")}
+            {isToday ? (
+              <span className="flex items-baseline gap-2">
+                <span className="text-foreground font-medium">{format(date, "d MMM yyyy")}</span>
+                <span className="text-xs text-muted-foreground">Today</span>
+              </span>
+            ) : (
+              <span className="text-foreground font-medium">{format(date, "d MMM yyyy")}</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent

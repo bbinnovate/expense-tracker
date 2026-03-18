@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 
 interface MonthHeaderProps {
   currentMonth: Date;
@@ -17,31 +18,24 @@ export function MonthHeader({
   showNavigation = false,
 }: MonthHeaderProps) {
   return (
-    <div className="flex items-center justify-center gap-4 py-4">
-      {showNavigation && (
-        <button
-          onClick={onPrevMonth}
-          className="p-2 rounded-full hover:bg-secondary transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-        </button>
-      )}
-      <div className="text-center">
-        <div className="text-2xl font-semibold text-foreground">
-          {format(currentMonth, "MMMM")}
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center gap-2">
+        {showNavigation && (
+          <button onClick={onPrevMonth} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+          </button>
+        )}
+        <div>
+          <span className="text-lg font-semibold text-foreground">{format(currentMonth, "MMMM")}</span>
+          <span className="text-lg font-semibold text-muted-foreground ml-1.5">{format(currentMonth, "yyyy")}</span>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {format(currentMonth, "yyyy")}
-        </div>
+        {showNavigation && (
+          <button onClick={onNextMonth} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+        )}
       </div>
-      {showNavigation && (
-        <button
-          onClick={onNextMonth}
-          className="p-2 rounded-full hover:bg-secondary transition-colors"
-        >
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
-      )}
+      <UserButton />
     </div>
   );
 }

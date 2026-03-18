@@ -13,10 +13,11 @@ export function HomePage() {
   const [activeTab, setActiveTab] = useState<NavTab>("add");
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [canSave, setCanSave] = useState(false);
-  const submitRef = useRef<(() => void) | null>(null);
+  const submitRef = useRef<(() => Promise<void>) | null>(null);
 
   const {
     isSignedIn,
+    clerkLoaded,
     expenses,
     categories,
     members,
@@ -24,8 +25,12 @@ export function HomePage() {
     addExpense,
     updateExpense,
     deleteExpense,
+    addCategory,
     updateCategory,
+    deleteCategory,
+    updateCategoryOrder,
     addMember,
+    updateMember,
     deleteMember,
     setBudget,
     getBudget,
@@ -45,6 +50,12 @@ export function HomePage() {
   const handleCanSubmitChange = useCallback((val: boolean) => {
     setCanSave(val);
   }, []);
+
+  if (!clerkLoaded) {
+    return (
+      <div className="min-h-screen bg-background" />
+    );
+  }
 
   if (!isSignedIn) {
     return (
@@ -67,24 +78,28 @@ export function HomePage() {
     );
   }
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
+      {!isLoaded && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-primary/20 overflow-hidden">
+          <div className="h-full bg-primary animate-[shimmer_1.2s_ease-in-out_infinite] w-1/2" />
+        </div>
+      )}
       <main className="max-w-lg mx-auto min-h-screen">
         {activeTab === "add" && (
           <ExpenseEntry
             categories={categories}
             members={members}
             onAddExpense={addExpense}
+            onAddCategory={addCategory}
             onUpdateCategory={updateCategory}
+            onDeleteCategory={deleteCategory}
+            onReorderCategories={updateCategoryOrder}
+            getBudget={getBudget}
+            getSpentByCategory={getSpentByCategory}
+            onSetBudget={setBudget}
             onAddMember={addMember}
+            onUpdateMember={updateMember}
             onDeleteMember={deleteMember}
             totalSpent={getTotalSpent()}
             onCanSubmitChange={handleCanSubmitChange}
@@ -122,6 +137,7 @@ export function HomePage() {
         onClose={() => setEditingExpense(null)}
         onSave={updateExpense}
         onAddMember={addMember}
+        onUpdateMember={updateMember}
         onDeleteMember={deleteMember}
       />
     </div>

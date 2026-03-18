@@ -11,6 +11,27 @@ import { ExpenseHeader } from "./ExpenseHeader";
 import { Category, WhoSpent, HouseholdMember } from "@/types/expense";
 import { toast } from "sonner";
 
+function SuccessPopup({ amount, category, onDone }: { amount: number; category: string; onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2000);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+      <div className="pointer-events-auto flex items-center gap-3.5 bg-emerald-950/80 border border-emerald-700/40 px-5 py-4 rounded-2xl shadow-lg animate-in fade-in zoom-in-95 duration-150 min-w-[200px]">
+        <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+          <span className="text-emerald-400 text-base font-bold">✓</span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <div className="text-[13px] font-semibold text-emerald-100">₹{amount.toLocaleString("en-IN")} · {category}</div>
+          <div className="text-[11px] text-emerald-400">Expense saved</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface ExpenseEntryProps {
   categories: Category[];
   members: HouseholdMember[];
@@ -20,21 +41,35 @@ interface ExpenseEntryProps {
     whoSpent: WhoSpent;
     description: string;
     date: string;
-  }) => void;
+  }) => Promise<unknown>;
+  onAddCategory: (name: string) => Promise<Category>;
   onUpdateCategory: (id: string, updates: Partial<Category>) => void;
+  onDeleteCategory: (id: string) => Promise<void>;
+  onReorderCategories: (ids: string[]) => Promise<void>;
+  getBudget: (categoryId: string) => number;
+  getSpentByCategory: (categoryId: string) => number;
+  onSetBudget: (categoryId: string, amount: number) => Promise<void>;
   onAddMember: (name: string) => Promise<HouseholdMember | void>;
+  onUpdateMember: (id: string, name: string) => Promise<void>;
   onDeleteMember: (id: string) => void;
   totalSpent: number;
   onCanSubmitChange: (canSubmit: boolean) => void;
-  submitRef: React.MutableRefObject<(() => void) | null>;
+  submitRef: React.MutableRefObject<(() => Promise<void>) | null>;
 }
 
 export function ExpenseEntry({
   categories,
   members,
   onAddExpense,
+  onAddCategory,
   onUpdateCategory,
+  onDeleteCategory,
+  onReorderCategories,
+  getBudget,
+  getSpentByCategory,
+  onSetBudget,
   onAddMember,
+  onUpdateMember,
   onDeleteMember,
   totalSpent,
   onCanSubmitChange,
@@ -45,6 +80,7 @@ export function ExpenseEntry({
   const [whoSpent, setWhoSpent] = useState<WhoSpent>("me");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
+  const [successData, setSuccessData] = useState<{ amount: number; category: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -57,39 +93,47 @@ export function ExpenseEntry({
     onCanSubmitChange(canSubmit);
   }, [canSubmit, onCanSubmitChange]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const numAmount = parseFloat(amount);
 
     if (!numAmount || numAmount <= 0 || !categoryId) return;
 
-    onAddExpense({
-      amount: numAmount,
-      categoryId,
-      whoSpent,
-      description: description.trim(),
-      date: format(date, "yyyy-MM-dd"),
-    });
+    try {
+      await onAddExpense({
+        amount: numAmount,
+        categoryId,
+        whoSpent,
+        description: description.trim(),
+        date: format(date, "yyyy-MM-dd"),
+      });
 
-    setAmount("");
-    setCategoryId(null);
-    setWhoSpent("me");
-    setDescription("");
-    setDate(new Date());
+      setAmount("");
+      setCategoryId(null);
+      setWhoSpent("me");
+      setDescription("");
+      setDate(new Date());
 
-    toast.success("Expense saved!", {
-      description: `₹${numAmount.toLocaleString("en-IN")} added`,
-      position: "top-center",
-      duration: 2500,
-      style: {
-        background: "hsl(45 95% 55%)",
-        color: "hsl(0 0% 7%)",
-        border: "none",
-        fontWeight: "600",
-        fontSize: "14px",
-      },
-    });
+      const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "Uncategorized";
+      setSuccessData({ amount: numAmount, category: categoryName });
 
-    inputRef.current?.focus();
+      inputRef.current?.focus();
+    } catch (err) {
+      console.error("[addExpense] failed:", err);
+      toast.error("Failed to save expense", {
+        description: "Check your connection and try again.",
+        position: "top-center",
+        duration: 3000,
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          border: "none",
+          borderRadius: "1rem",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+          fontWeight: "600",
+          fontSize: "14px",
+        },
+      });
+    }
   }, [amount, categoryId, whoSpent, description, date, onAddExpense]);
 
   useEffect(() => {
@@ -97,7 +141,11 @@ export function ExpenseEntry({
   }, [handleSubmit, submitRef]);
 
   return (
-    <div className="flex flex-col min-h-full pb-16 animate-fade-in">
+    <>
+    {successData !== null && (
+      <SuccessPopup amount={successData.amount} category={successData.category} onDone={() => setSuccessData(null)} />
+    )}
+    <div className="flex flex-col h-[100dvh] overflow-hidden pb-nav animate-fade-in">
       <ExpenseHeader
         currentMonth={new Date()}
         date={date}
@@ -113,13 +161,20 @@ export function ExpenseEntry({
             <div className="text-xs text-muted-foreground">Category</div>
             <CategoryManager
               categories={categories}
+              onAddCategory={onAddCategory}
               onUpdateCategory={onUpdateCategory}
+              onDeleteCategory={onDeleteCategory}
+              onReorderCategories={onReorderCategories}
+              getBudget={getBudget}
+              onSetBudget={onSetBudget}
             />
           </div>
           <CategorySelector
             categories={categories}
             selected={categoryId}
             onSelect={setCategoryId}
+            getBudget={getBudget}
+            getSpentByCategory={getSpentByCategory}
           />
         </div>
 
@@ -128,11 +183,13 @@ export function ExpenseEntry({
           members={members}
           onSelect={setWhoSpent}
           onAddMember={onAddMember}
+          onUpdateMember={onUpdateMember}
           onDeleteMember={onDeleteMember}
         />
 
         <DescriptionInput value={description} onChange={setDescription} />
       </div>
     </div>
+    </>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { format, parseISO } from "date-fns";
+import { useState, useMemo } from "react";
+import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { Expense, Category, HouseholdMember } from "@/types/expense";
-import { Edit2, Trash2, Download } from "lucide-react";
+import { Edit2, Trash2, Download, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface ExpenseLogProps {
   expenses: Expense[];
@@ -22,6 +23,24 @@ interface ExpenseLogProps {
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
   onExport: () => void;
+}
+
+// Simple stable color from category id
+const COLORS = [
+  "#4ade80", "#60a5fa", "#f472b6", "#fb923c", "#a78bfa",
+  "#34d399", "#facc15", "#38bdf8", "#f87171", "#a3e635",
+];
+function categoryColor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffff;
+  return COLORS[h % COLORS.length];
+}
+
+function formatDay(dateStr: string) {
+  const d = parseISO(dateStr);
+  if (isToday(d)) return "Today";
+  if (isYesterday(d)) return "Yesterday";
+  return format(d, "EEE, MMM d");
 }
 
 export function ExpenseLog({
@@ -33,121 +52,227 @@ export function ExpenseLog({
   onExport,
 }: ExpenseLogProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [filterMember, setFilterMember] = useState<string | null>(null);
+  const [filterDate, setFilterDate] = useState<string | null>(null);
 
-  const sorted = [...expenses].sort(
-    (a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime() ||
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  const getCategoryName = (id: string) =>
+    categories.find((c) => c.id === id)?.name ?? id;
 
-  const getCategoryInfo = (categoryId: string) => {
-    return (
-      categories.find((c) => c.id === categoryId) || {
-        name: categoryId,
-      }
-    );
-  };
+  const getMemberName = (id: string) =>
+    members.find((m) => m.id === id)?.name ?? id;
+
+  // Unique dates with expenses, sorted descending
+  const activeDates = useMemo(() => {
+    const dates = [...new Set(expenses.map((e) => e.date))];
+    return dates.sort((a, b) => b.localeCompare(a));
+  }, [expenses]);
+
+  const filtered = useMemo(() => {
+    return [...expenses]
+      .filter((e) => !filterCategory || e.categoryId === filterCategory)
+      .filter((e) => !filterMember || e.whoSpent === filterMember)
+      .filter((e) => !filterDate || e.date === filterDate)
+      .sort(
+        (a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime() ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+  }, [expenses, filterCategory, filterMember, filterDate]);
+
+  const grouped = useMemo(() =>
+    filtered.reduce((acc, e) => {
+      if (!acc[e.date]) acc[e.date] = [];
+      acc[e.date].push(e);
+      return acc;
+    }, {} as Record<string, Expense[]>),
+  [filtered]);
+
+  // Only show categories/members that appear in this month's expenses
+  const activeCategories = useMemo(() =>
+    categories.filter((c) => expenses.some((e) => e.categoryId === c.id)),
+  [categories, expenses]);
+
+  const activeMembers = useMemo(() =>
+    members.filter((m) => expenses.some((e) => e.whoSpent === m.id)),
+  [members, expenses]);
+
+  const hasFilter = filterCategory || filterMember || filterDate;
 
   const handleDelete = () => {
-    if (deleteId) {
-      onDeleteExpense(deleteId);
-      setDeleteId(null);
-    }
+    if (deleteId) { onDeleteExpense(deleteId); setDeleteId(null); }
   };
-
-  const groupedExpenses = sorted.reduce(
-    (acc, expense) => {
-      const date = expense.date;
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(expense);
-      return acc;
-    },
-    {} as Record<string, Expense[]>,
-  );
 
   return (
     <div className="animate-fade-in">
-      <button
-        onClick={onExport}
-        className="w-full mb-3 py-2 px-3 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center gap-2 hover:bg-secondary/80 transition-colors text-xs"
-      >
-        <Download className="w-3.5 h-3.5" />
-        Export CSV
-      </button>
+      {/* Day selector */}
+      {activeDates.length > 1 && (
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-2">
+          {activeDates.map((date) => {
+            const d = parseISO(date);
+            const isSelected = filterDate === date;
+            return (
+              <button
+                key={date}
+                onClick={() => setFilterDate(isSelected ? null : date)}
+                className={cn(
+                  "shrink-0 flex flex-col items-center px-3 py-1.5 rounded-xl text-xs transition-colors",
+                  isSelected
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground",
+                )}
+              >
+                <span className="font-semibold text-base leading-tight">{format(d, "d")}</span>
+                <span className="text-[10px] opacity-70">{format(d, "EEE")}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {Object.keys(groupedExpenses).length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+      {/* Filter + export row */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar">
+          {/* Category filters */}
+          {activeCategories.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setFilterCategory(filterCategory === c.id ? null : c.id)}
+              className={cn(
+                "shrink-0 flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full transition-colors",
+                filterCategory === c.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground",
+              )}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ backgroundColor: categoryColor(c.id) }}
+              />
+              {c.name}
+            </button>
+          ))}
+          {/* Member filters (only if >1 active member) */}
+          {activeMembers.length > 1 && activeMembers.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setFilterMember(filterMember === m.id ? null : m.id)}
+              className={cn(
+                "shrink-0 text-xs px-2.5 py-1.5 rounded-full transition-colors",
+                filterMember === m.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground",
+              )}
+            >
+              {m.name}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          {hasFilter && (
+            <button
+              onClick={() => { setFilterCategory(null); setFilterMember(null); setFilterDate(null); }}
+              className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
+            >
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+          <button
+            onClick={onExport}
+            className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {Object.keys(grouped).length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <div className="text-3xl mb-2">📝</div>
-          <div className="text-xs">No expenses this month</div>
+          <div className="text-xs">
+            {hasFilter ? "No expenses match this filter" : "No expenses this month"}
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
-          {Object.entries(groupedExpenses).map(([date, dayExpenses]) => (
-            <div key={date}>
-              <div className="text-xs text-muted-foreground mb-1.5 px-1">
-                {format(parseISO(date), "EEEE, MMM d")}
-              </div>
-              <div className="space-y-1.5">
-                {dayExpenses.map((expense) => {
-                  const category = getCategoryInfo(expense.categoryId);
-                  return (
-                    <div key={expense.id} className="expense-card p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-2">
-                          <div>
-                            <div className="font-semibold text-foreground font-mono text-sm">
-                              ₹{expense.amount.toLocaleString("en-IN")}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {category.name}
-                            </div>
-                            {expense.description && (
-                              <div className="text-xs text-muted-foreground mt-0.5">
-                                {expense.description}
-                              </div>
-                            )}
-                            <div className="text-[10px] text-muted-foreground mt-0.5">
-                              {members.find((m) => m.id === expense.whoSpent)
-                                ?.name ?? expense.whoSpent}
-                            </div>
+          {Object.entries(grouped).map(([date, dayExpenses]) => {
+            const dayTotal = dayExpenses.reduce((s, e) => s + e.amount, 0);
+            return (
+              <div key={date}>
+                {/* Day header */}
+                <div className="flex items-center justify-between px-1 mb-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {formatDay(date)}
+                  </span>
+                  <span className="text-xs font-semibold text-foreground font-mono">
+                    ₹{dayTotal.toLocaleString("en-IN")}
+                  </span>
+                </div>
+
+                {/* Expense rows */}
+                <div className="space-y-1">
+                  {dayExpenses.map((expense) => (
+                    <div key={expense.id} className="expense-card p-3 flex items-center gap-3">
+                      {/* Color dot */}
+                      <div
+                        className="w-2 h-2 rounded-full shrink-0 mt-0.5"
+                        style={{ backgroundColor: categoryColor(expense.categoryId) }}
+                      />
+
+                      {/* Main info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-semibold text-foreground font-mono text-sm">
+                            ₹{expense.amount.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {getCategoryName(expense.categoryId)}
+                          </span>
+                        </div>
+                        {(expense.description || expense.whoSpent !== "me") && (
+                          <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                            {[
+                              expense.description,
+                              expense.whoSpent !== "me" ? getMemberName(expense.whoSpent) : null,
+                            ].filter(Boolean).join(" · ")}
                           </div>
-                        </div>
-                        <div className="flex gap-0.5">
-                          <button
-                            onClick={() => onEditExpense(expense)}
-                            className="p-1.5 rounded-md hover:bg-secondary transition-colors"
-                          >
-                            <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteId(expense.id)}
-                            className="p-1.5 rounded-md hover:bg-destructive/20 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                          </button>
-                        </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-0.5 shrink-0">
+                        <button
+                          onClick={() => onEditExpense(expense)}
+                          className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(expense.id)}
+                          className="p-1.5 rounded-md hover:bg-destructive/20 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-card border-border">
+        <AlertDialogContent className="w-[calc(100%-2rem)] max-w-sm bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Expense</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure? This action cannot be undone.
+              Are you sure? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-secondary border-0">
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel className="bg-secondary border-0">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

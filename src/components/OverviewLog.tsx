@@ -15,11 +15,11 @@ interface OverviewLogProps {
   members: HouseholdMember[];
   getSpentByCategory: (categoryId: string, month?: string) => number;
   getTotalSpent: (month?: string) => number;
-  getBudget: (categoryId: string, month?: string) => number;
-  onSetBudget: (categoryId: string, amount: number) => void;
+  getBudget: (categoryId: string) => number;
+  onSetBudget: (categoryId: string, amount: number) => Promise<void>;
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
-  onExport: () => void;
+  onExport: (month: string) => void;
 }
 
 export function OverviewLog({
@@ -38,7 +38,7 @@ export function OverviewLog({
   const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
 
   return (
-    <div className="flex flex-col min-h-full pb-16 animate-fade-in">
+    <div className="flex flex-col min-h-full pb-nav animate-fade-in">
       <MonthHeader
         currentMonth={currentMonth}
         onPrevMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -81,19 +81,19 @@ export function OverviewLog({
             <BudgetTable
               categories={categories}
               getSpentByCategory={(id) => getSpentByCategory(id, monthKey)}
-              getBudget={(id) => getBudget(id, monthKey)}
+              getBudget={getBudget}
               onSetBudget={onSetBudget}
             />
           </TabsContent>
 
           <TabsContent value="log" className="mt-0">
             <ExpenseLog
-              expenses={expenses}
+              expenses={expenses.filter((e) => e.date.startsWith(monthKey))}
               categories={categories}
               members={members}
               onEditExpense={onEditExpense}
               onDeleteExpense={onDeleteExpense}
-              onExport={onExport}
+              onExport={() => onExport(monthKey)}
             />
           </TabsContent>
         </Tabs>

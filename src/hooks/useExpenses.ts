@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
 import {
   collection,
@@ -17,7 +17,7 @@ import {
   Category,
   Expense,
   HouseholdMember,
-  MonthlyBudget,
+
   DEFAULT_CATEGORIES,
   DEFAULT_MEMBERS,
   FIXED_MEMBER_IDS,
@@ -29,9 +29,11 @@ export function useExpenses() {
   const userId = user?.id ?? null;
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [rawCategories, setRawCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>(DEFAULT_MEMBERS);
-  const [budgets, setBudgets] = useState<MonthlyBudget[]>([]);
+  // Flat budget targets: categoryId -> monthly amount (applies to every month)
+  const [budgetTargets, setBudgetTargets] = useState<Record<string, number>>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Sync Clerk user profile → Firestore users/{userId}
@@ -114,7 +116,7 @@ export function useExpenses() {
   // Real-time listener for categories; seed defaults on first sign-in
   useEffect(() => {
     if (!userId) {
-      setCategories(DEFAULT_CATEGORIES);
+      setRawCategories(DEFAULT_CATEGORIES);
       return;
     }
     const unsub = onSnapshot(
@@ -129,32 +131,65 @@ export function useExpenses() {
           );
           return;
         }
-        setCategories(
-          snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Category),
-        );
+        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Category);
+        const defaultIds = DEFAULT_CATEGORIES.map((c) => c.id);
+        const defaults = defaultIds.map((id) => all.find((c) => c.id === id)).filter(Boolean) as Category[];
+        const custom = all.filter((c) => !defaultIds.includes(c.id)).sort((a, b) => a.id.localeCompare(b.id));
+        setRawCategories([...defaults, ...custom]);
       },
     );
     return unsub;
   }, [userId]);
 
-  // Real-time listener for budgets (user-scoped)
+  // Real-time listener for category order
+  useEffect(() => {
+    if (!userId) { setCategoryOrder([]); return; }
+    const unsub = onSnapshot(
+      doc(db, "users", userId, "settings", "categoryOrder"),
+      (snap) => {
+        setCategoryOrder(snap.exists() ? (snap.data().order as string[]) : []);
+      },
+    );
+    return unsub;
+  }, [userId]);
+
+  // Real-time listener for budget targets (flat per-category, applies to all months)
   useEffect(() => {
     if (!userId) {
-      setBudgets([]);
+      setBudgetTargets({});
       setIsLoaded(clerkLoaded);
       return;
     }
     const unsub = onSnapshot(
-      collection(db, "users", userId, "budgets"),
+      doc(db, "users", userId, "budgets", "targets"),
       (snap) => {
-        setBudgets(
-          snap.docs.map((d) => ({ month: d.id, ...d.data() }) as MonthlyBudget),
-        );
+        setBudgetTargets(snap.exists() ? (snap.data() as Record<string, number>) : {});
         setIsLoaded(true);
       },
     );
     return unsub;
   }, [userId, clerkLoaded]);
+
+  const categories = useMemo(() => {
+    if (categoryOrder.length === 0) return rawCategories;
+    const orderMap = new Map(categoryOrder.map((id, i) => [id, i]));
+    return [...rawCategories].sort((a, b) => {
+      const ai = orderMap.has(a.id) ? orderMap.get(a.id)! : Infinity;
+      const bi = orderMap.has(b.id) ? orderMap.get(b.id)! : Infinity;
+      return ai - bi;
+    });
+  }, [rawCategories, categoryOrder]);
+
+  const updateCategoryOrder = useCallback(
+    async (ids: string[]) => {
+      if (!userId) return;
+      await setDoc(
+        doc(db, "users", userId, "settings", "categoryOrder"),
+        { order: ids },
+      );
+    },
+    [userId],
+  );
 
   const addMember = useCallback(
     async (name: string) => {
@@ -168,6 +203,15 @@ export function useExpenses() {
         throw err; // re-throw so WhoSelector can show the toast
       }
       return member;
+    },
+    [userId],
+  );
+
+  const updateMember = useCallback(
+    async (id: string, name: string) => {
+      if (!userId) throw new Error("Not signed in");
+      if (FIXED_MEMBER_IDS.includes(id as (typeof FIXED_MEMBER_IDS)[number])) return;
+      await updateDoc(doc(db, "users", userId, "members", id), { name });
     },
     [userId],
   );
@@ -187,7 +231,7 @@ export function useExpenses() {
       if (!userId) throw new Error("Not signed in");
       const newExpense: Expense = {
         ...expense,
-        id: crypto.randomUUID(),
+        id: (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36)),
         createdAt: new Date().toISOString(),
       };
       await setDoc(
@@ -218,6 +262,25 @@ export function useExpenses() {
     [userId],
   );
 
+  const addCategory = useCallback(
+    async (name: string) => {
+      if (!userId) throw new Error("Not signed in");
+      const id = name.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now().toString(36);
+      const category: Category = { id, name };
+      await setDoc(doc(db, "users", userId, "categories", id), category);
+      return category;
+    },
+    [userId],
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      if (!userId) throw new Error("Not signed in");
+      await deleteDoc(doc(db, "users", userId, "categories", id));
+    },
+    [userId],
+  );
+
   const updateCategory = useCallback(
     async (id: string, updates: Partial<Category>) => {
       if (!userId) throw new Error("Not signed in");
@@ -237,28 +300,22 @@ export function useExpenses() {
   const setBudget = useCallback(
     async (categoryId: string, amount: number) => {
       if (!userId) throw new Error("Not signed in");
-      const monthKey = getCurrentMonthKey();
-      const budgetRef = doc(db, "users", userId, "budgets", monthKey);
-      const snap = await getDoc(budgetRef);
-      if (snap.exists()) {
-        await updateDoc(budgetRef, { [`budgets.${categoryId}`]: amount });
-      } else {
-        await setDoc(budgetRef, {
-          month: monthKey,
-          budgets: { [categoryId]: amount },
-        });
-      }
+      await setDoc(
+        doc(db, "users", userId, "budgets", "targets"),
+        { [categoryId]: amount },
+        { merge: true },
+      );
     },
-    [userId, getCurrentMonthKey],
+    [userId],
   );
 
+  // Budget targets are month-agnostic: same target applies every month
+  // Spending is computed per-month from expenses, so it naturally resets each month
   const getBudget = useCallback(
-    (categoryId: string, month?: string) => {
-      const monthKey = month || getCurrentMonthKey();
-      const monthBudget = budgets.find((b) => b.month === monthKey);
-      return monthBudget?.budgets[categoryId] || 0;
+    (categoryId: string) => {
+      return budgetTargets[categoryId] ?? 0;
     },
-    [budgets, getCurrentMonthKey],
+    [budgetTargets],
   );
 
   const getExpensesByMonth = useCallback(
@@ -287,9 +344,10 @@ export function useExpenses() {
     [getExpensesByMonth],
   );
 
-  const exportToCSV = useCallback(() => {
+  const exportToCSV = useCallback((month?: string) => {
+    const exportExpenses = month ? expenses.filter((e) => e.date.startsWith(month)) : expenses;
     const headers = ["Date", "Amount", "Category", "Who Spent", "Description"];
-    const rows = expenses.map((exp) => {
+    const rows = exportExpenses.map((exp) => {
       const category = categories.find((c) => c.id === exp.categoryId);
       const member = members.find((m) => m.id === exp.whoSpent);
       return [
@@ -308,23 +366,27 @@ export function useExpenses() {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `expenses-${getCurrentMonthKey()}.csv`;
+    link.download = `expenses-${month ?? getCurrentMonthKey()}.csv`;
     link.click();
   }, [expenses, categories, members, getCurrentMonthKey]);
 
   return {
     userId,
     isSignedIn: !!userId,
+    clerkLoaded,
     expenses,
     categories,
     members,
-    budgets,
     isLoaded,
     addExpense,
     updateExpense,
     deleteExpense,
+    addCategory,
     updateCategory,
+    deleteCategory,
+    updateCategoryOrder,
     addMember,
+    updateMember,
     deleteMember,
     setBudget,
     getBudget,

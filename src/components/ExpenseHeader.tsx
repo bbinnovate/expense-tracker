@@ -28,41 +28,23 @@ export function ExpenseHeader({
     format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
 
   return (
-    <div className="px-3 pt-3 pb-2 space-y-2">
-      <div className="flex items-stretch gap-2">
-        <div className="flex-1 bg-secondary/50 rounded-lg px-3 py-2 flex flex-col justify-center">
-          <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            Month
-          </div>
-          <div className="text-base font-semibold text-foreground">
-            {format(currentMonth, "MMM yyyy")}
-          </div>
+    <div className="px-3 pt-2 pb-2">
+      <div className="flex items-center justify-between bg-secondary/50 rounded-xl px-3 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm font-semibold text-foreground">{format(currentMonth, "MMM yyyy")}</span>
+          <span className="text-muted-foreground text-xs">·</span>
+          <span className="text-xs font-semibold text-primary">₹{totalSpent.toLocaleString("en-IN")}</span>
         </div>
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              className={cn(
-                "flex-1 h-auto flex-col items-start justify-center gap-0.5 py-2 px-3",
-                "bg-secondary/50 rounded-lg hover:bg-secondary/70",
-              )}
-            >
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider w-full text-left">
-                Date
-              </div>
-              <div className="flex items-center gap-1.5 text-foreground w-full">
-                <CalendarIcon className="h-3.5 w-3.5 text-primary" />
-                <span className="text-sm font-medium">
-                  {isToday ? "Today" : format(date, "d MMM")}
-                </span>
-              </div>
+            <Button variant="ghost" size="sm" className="h-auto py-0.5 px-2 hover:bg-secondary rounded-lg gap-1.5">
+              <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+              <span className="text-sm font-medium text-foreground">{format(date, "d MMM")}</span>
+              {isToday && <span className="text-[10px] text-muted-foreground">Today</span>}
             </Button>
           </PopoverTrigger>
-          <PopoverContent
-            className="w-auto p-0 bg-popover border-border"
-            align="end"
-          >
+          <PopoverContent className="w-auto p-0 bg-popover border-border" align="end">
             <Calendar
               mode="single"
               selected={date}
@@ -72,15 +54,6 @@ export function ExpenseHeader({
             />
           </PopoverContent>
         </Popover>
-      </div>
-
-      <div className="flex items-center justify-center gap-1.5 py-1 px-3 rounded-md bg-card/50 border border-border/50">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-          This month:
-        </span>
-        <span className="text-xs font-mono font-medium text-primary">
-          ₹{totalSpent.toLocaleString("en-IN")}
-        </span>
       </div>
     </div>
   );
