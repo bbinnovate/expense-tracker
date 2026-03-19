@@ -99,11 +99,15 @@
 
   html {
     @apply dark;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: "Inter", system-ui, sans-serif;
+    height: 100dvh;
+    overflow: hidden;
   }
 }
 
@@ -140,7 +144,7 @@
   }
 
   .category-chip {
-    @apply px-4 py-3 rounded-xl text-sm font-medium
+    @apply px-3 rounded-xl text-sm font-medium
            transition-all duration-150 ease-out
            border border-transparent
            active:scale-95;
@@ -151,7 +155,7 @@
   }
 
   .who-chip {
-    @apply px-5 py-3 rounded-full text-sm font-medium
+    @apply px-4 rounded-xl text-sm font-medium
            bg-secondary text-secondary-foreground
            transition-all duration-150 ease-out
            active:scale-95;

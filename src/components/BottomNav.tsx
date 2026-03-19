@@ -31,7 +31,7 @@ export function BottomNav({
           )}
         >
           <Plus className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Add</span>
+          <span className="text-xs font-medium">Add</span>
         </button>
 
         {/* Save - 50% */}
@@ -62,7 +62,7 @@ export function BottomNav({
           )}
         >
           <LayoutGrid className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Overview</span>
+          <span className="text-xs font-medium">Overview</span>
         </button>
       </div>
     </nav>

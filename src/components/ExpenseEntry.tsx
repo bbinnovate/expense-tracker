@@ -25,7 +25,7 @@ function SuccessPopup({ amount, category, onDone }: { amount: number; category: 
         </div>
         <div className="flex flex-col gap-0.5">
           <div className="text-[13px] font-semibold text-emerald-100">₹{amount.toLocaleString("en-IN")} · {category}</div>
-          <div className="text-[11px] text-emerald-400">Expense saved</div>
+          <div className="text-xs text-emerald-400">Expense saved</div>
         </div>
       </div>
     </div>
@@ -83,9 +83,6 @@ export function ExpenseEntry({
   const [successData, setSuccessData] = useState<{ amount: number; category: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
 
   const canSubmit = !!(amount && parseFloat(amount) > 0 && categoryId);
 
@@ -158,7 +155,7 @@ export function ExpenseEntry({
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between px-1">
-            <div className="text-xs text-muted-foreground">Category</div>
+            <div className="text-sm text-muted-foreground">Category</div>
             <CategoryManager
               categories={categories}
               onAddCategory={onAddCategory}

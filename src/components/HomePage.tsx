@@ -79,13 +79,13 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-[100dvh] overflow-hidden bg-background">
       {!isLoaded && (
         <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-primary/20 overflow-hidden">
           <div className="h-full bg-primary animate-[shimmer_1.2s_ease-in-out_infinite] w-1/2" />
         </div>
       )}
-      <main className="max-w-lg mx-auto min-h-screen">
+      <main className="max-w-lg mx-auto h-full flex flex-col">
         {activeTab === "add" && (
           <ExpenseEntry
             categories={categories}

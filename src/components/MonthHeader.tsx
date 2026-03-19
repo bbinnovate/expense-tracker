@@ -21,7 +21,7 @@ export function MonthHeader({
     <div className="flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-2">
         {showNavigation && (
-          <button onClick={onPrevMonth} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+          <button onClick={onPrevMonth} className="p-2.5 rounded-full hover:bg-secondary transition-colors">
             <ChevronLeft className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
@@ -30,7 +30,7 @@ export function MonthHeader({
           <span className="text-lg font-semibold text-muted-foreground ml-1.5">{format(currentMonth, "yyyy")}</span>
         </div>
         {showNavigation && (
-          <button onClick={onNextMonth} className="p-1.5 rounded-full hover:bg-secondary transition-colors">
+          <button onClick={onNextMonth} className="p-2.5 rounded-full hover:bg-secondary transition-colors">
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         )}

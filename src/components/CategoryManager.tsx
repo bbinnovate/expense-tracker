@@ -100,7 +100,7 @@ function SortableRow({
             onChange={(e) => setEditName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSave()}
             placeholder="Category name"
-            className="h-8 bg-background text-sm"
+            className="h-10 bg-background text-sm"
             autoFocus
           />
           <div className="flex gap-2">
@@ -112,10 +112,10 @@ function SortableRow({
                 onChange={(e) => setEditBudget(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onSave()}
                 placeholder="Monthly budget"
-                className="h-8 pl-6 bg-background text-sm"
+                className="h-10 pl-6 bg-background text-sm"
               />
             </div>
-            <Button size="sm" onClick={onSave} className="h-8 px-3">
+            <Button size="sm" onClick={onSave} className="h-10 px-3">
               <Check className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -123,7 +123,7 @@ function SortableRow({
       ) : (
         <div className="flex items-center gap-2 px-2 py-2.5">
           <button
-            className="touch-none cursor-grab active:cursor-grabbing p-1 text-muted-foreground/50 hover:text-muted-foreground"
+            className="touch-none cursor-grab active:cursor-grabbing p-2.5 text-muted-foreground/50 hover:text-muted-foreground"
             {...attributes}
             {...listeners}
           >
@@ -132,20 +132,20 @@ function SortableRow({
           <div className="flex-1 min-w-0">
             <div className="text-sm text-foreground">{category.name}</div>
             {budget > 0 && (
-              <div className="text-xs text-muted-foreground">₹{budget.toLocaleString("en-IN")}/mo</div>
+              <div className="text-sm text-muted-foreground">₹{budget.toLocaleString("en-IN")}/mo</div>
             )}
           </div>
           <button
             onClick={() => onStartEdit(category)}
-            className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+            className="p-2.5 rounded-md hover:bg-secondary transition-colors"
           >
-            <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+            <Edit2 className="w-5 h-5 text-muted-foreground" />
           </button>
           <button
             onClick={() => onDelete(category.id)}
-            className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+            className="p-2.5 rounded-md hover:bg-secondary transition-colors"
           >
-            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+            <Trash2 className="w-5 h-5 text-destructive" />
           </button>
         </div>
       )}
@@ -233,7 +233,7 @@ export function CategoryManager({
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2">
               <span>Categories</span>
-              <span className="text-xs font-normal text-muted-foreground">{categories.length}/{MAX_CATEGORIES}</span>
+              <span className="text-sm font-normal text-muted-foreground">{categories.length}/{MAX_CATEGORIES}</span>
             </DialogTitle>
           </DialogHeader>
 
@@ -266,10 +266,10 @@ export function CategoryManager({
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 placeholder="Category name"
-                className="flex-1 h-9 bg-background"
+                className="flex-1 h-10 bg-background"
                 autoFocus
               />
-              <Button size="sm" onClick={handleAdd} disabled={!newName.trim()} className="h-9 px-2">
+              <Button size="sm" onClick={handleAdd} disabled={!newName.trim()} className="h-10 px-3">
                 <Check className="h-4 w-4" />
               </Button>
             </div>

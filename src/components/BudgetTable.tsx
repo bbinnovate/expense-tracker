@@ -86,11 +86,11 @@ export function BudgetTable({
         )}>
           <div className="flex items-end justify-between mb-3">
             <div>
-              <div className="text-xs text-muted-foreground mb-0.5">This month</div>
+              <div className="text-sm text-muted-foreground mb-0.5">This month</div>
               <div className="text-2xl font-bold text-foreground">
                 ₹{totalSpentOnBudgeted.toLocaleString("en-IN")}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 of ₹{totalBudget.toLocaleString("en-IN")} budgeted
               </div>
             </div>
@@ -113,7 +113,7 @@ export function BudgetTable({
             />
           </div>
           <div className={cn(
-            "text-xs font-medium",
+            "text-sm font-medium",
             overallStatus === "over" ? "text-destructive" :
             overallStatus === "warning" ? "text-warning" : "text-success",
           )}>
@@ -144,7 +144,7 @@ export function BudgetTable({
                 <span className="flex-1 text-sm font-medium text-foreground truncate">{category.name}</span>
                 {budget > 0 && (
                   <span className={cn(
-                    "text-xs font-semibold shrink-0",
+                    "text-sm font-semibold shrink-0",
                     status === "over" ? "text-destructive" :
                     status === "warning" ? "text-warning" : "text-success",
                   )}>
@@ -155,7 +155,7 @@ export function BudgetTable({
                   onClick={() => handleEditBudget(category)}
                   className="p-1 rounded-md hover:bg-secondary transition-colors shrink-0"
                 >
-                  <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Edit2 className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
@@ -171,7 +171,7 @@ export function BudgetTable({
                       style={{ width: `${barPct}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs">
+                  <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">₹{spent.toLocaleString("en-IN")}</span>
                     <span className={cn(
                       "font-medium",
@@ -186,7 +186,7 @@ export function BudgetTable({
                   </div>
                 </>
               ) : (
-                <div className="text-xs text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   ₹{spent.toLocaleString("en-IN")} spent · no budget set
                 </div>
               )}
@@ -199,7 +199,7 @@ export function BudgetTable({
       {hiddenCount > 0 && (
         <button
           onClick={() => setShowNoBudget((v) => !v)}
-          className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground py-2 transition-colors"
+          className="mt-3 w-full flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground py-2 transition-colors"
         >
           {showNoBudget ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           {showNoBudget ? "Hide" : `Show ${hiddenCount}`} categories without budget

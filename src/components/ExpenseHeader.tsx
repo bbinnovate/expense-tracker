@@ -31,8 +31,8 @@ export function ExpenseHeader({
       <div className="flex items-center justify-between bg-secondary/50 rounded-xl px-3 py-2.5">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-semibold text-foreground">{format(currentMonth, "MMM yyyy")}</span>
-          <span className="text-muted-foreground text-xs">·</span>
-          <span className="text-xs font-semibold text-primary">₹{totalSpent.toLocaleString("en-IN")}</span>
+          <span className="text-muted-foreground text-sm">·</span>
+          <span className="text-sm font-semibold text-primary">₹{totalSpent.toLocaleString("en-IN")}</span>
         </div>
 
         <Popover>
@@ -40,7 +40,7 @@ export function ExpenseHeader({
             <Button variant="ghost" size="sm" className="h-auto py-0.5 px-2 hover:bg-secondary rounded-lg gap-1.5">
               <CalendarIcon className="h-3.5 w-3.5 text-primary" />
               <span className="text-sm font-medium text-foreground">{format(date, "d MMM")}</span>
-              {isToday && <span className="text-[10px] text-muted-foreground">Today</span>}
+              {isToday && <span className="text-xs text-muted-foreground">Today</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 bg-popover border-border" align="end">

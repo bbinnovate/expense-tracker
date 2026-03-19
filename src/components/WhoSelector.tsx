@@ -99,7 +99,7 @@ export function WhoSelector({
     <>
       <div className="space-y-1">
         <div className="flex items-center justify-between px-1">
-          <div className="text-xs text-muted-foreground">Who spent</div>
+          <div className="text-sm text-muted-foreground">Who spent</div>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-1.5">
@@ -120,10 +120,10 @@ export function WhoSelector({
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
-                          className="flex-1 h-8 bg-background text-sm"
+                          className="flex-1 h-10 bg-background text-sm"
                           autoFocus
                         />
-                        <Button size="sm" onClick={handleSaveEdit} className="h-8 px-3">
+                        <Button size="sm" onClick={handleSaveEdit} className="h-10 px-3">
                           <Check className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -137,15 +137,15 @@ export function WhoSelector({
                           <>
                             <button
                               onClick={() => { setEditingId(m.id); setEditName(m.name); setAdding(false); }}
-                              className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+                              className="p-2.5 rounded-md hover:bg-secondary transition-colors"
                             >
-                              <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+                              <Edit2 className="w-5 h-5 text-muted-foreground" />
                             </button>
                             <button
                               onClick={() => setDeleteId(m.id)}
-                              className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+                              className="p-2.5 rounded-md hover:bg-secondary transition-colors"
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              <Trash2 className="w-5 h-5 text-destructive" />
                             </button>
                           </>
                         )}
@@ -165,10 +165,10 @@ export function WhoSelector({
                     placeholder="Member name"
                     maxLength={20}
                     disabled={saving}
-                    className="flex-1 h-9 bg-background"
+                    className="flex-1 h-10 bg-background"
                     autoFocus
                   />
-                  <Button size="sm" onClick={handleAdd} disabled={!newName.trim() || saving} className="h-9 px-2">
+                  <Button size="sm" onClick={handleAdd} disabled={!newName.trim() || saving} className="h-10 px-3">
                     <Check className="h-4 w-4" />
                   </Button>
                 </div>
@@ -193,7 +193,7 @@ export function WhoSelector({
               key={m.id}
               onClick={() => onSelect(m.id)}
               className={cn(
-                "who-chip flex items-center gap-1.5 text-xs py-2 px-3",
+                "who-chip flex items-center gap-1.5 text-sm h-10 px-3",
                 selected === m.id && "who-chip-selected",
               )}
             >

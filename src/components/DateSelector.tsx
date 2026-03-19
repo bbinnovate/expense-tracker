@@ -36,7 +36,7 @@ export function DateSelector({ date, onDateChange }: DateSelectorProps) {
             {isToday ? (
               <span className="flex items-baseline gap-2">
                 <span className="text-foreground font-medium">{format(date, "d MMM yyyy")}</span>
-                <span className="text-xs text-muted-foreground">Today</span>
+                <span className="text-sm text-muted-foreground">Today</span>
               </span>
             ) : (
               <span className="text-foreground font-medium">{format(date, "d MMM yyyy")}</span>

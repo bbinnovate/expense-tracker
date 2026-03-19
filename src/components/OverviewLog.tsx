@@ -38,7 +38,7 @@ export function OverviewLog({
   const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
 
   return (
-    <div className="flex flex-col min-h-full pb-nav animate-fade-in">
+    <div className="flex flex-col h-full pb-nav animate-fade-in overflow-hidden">
       <MonthHeader
         currentMonth={currentMonth}
         onPrevMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -46,30 +46,23 @@ export function OverviewLog({
         showNavigation
       />
 
-      <div className="flex-1 px-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar">
         <Tabs defaultValue="chart" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 bg-secondary mb-4 h-9">
-            <TabsTrigger
-              value="chart"
-              className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Chart
-            </TabsTrigger>
-            <TabsTrigger
-              value="budget"
-              className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Budgets
-            </TabsTrigger>
-            <TabsTrigger
-              value="log"
-              className="text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Log
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-0 z-10 bg-background px-3 pb-2">
+            <TabsList className="w-full grid grid-cols-3 bg-secondary h-11">
+              <TabsTrigger value="chart" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Chart
+              </TabsTrigger>
+              <TabsTrigger value="budget" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Budgets
+              </TabsTrigger>
+              <TabsTrigger value="log" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Log
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="chart" className="mt-0">
+          <TabsContent value="chart" className="mt-2 px-3">
             <ExpensePieChart
               categories={categories}
               getSpentByCategory={(id) => getSpentByCategory(id, monthKey)}
@@ -77,7 +70,7 @@ export function OverviewLog({
             />
           </TabsContent>
 
-          <TabsContent value="budget" className="mt-0">
+          <TabsContent value="budget" className="mt-2 px-3">
             <BudgetTable
               categories={categories}
               getSpentByCategory={(id) => getSpentByCategory(id, monthKey)}
@@ -86,7 +79,7 @@ export function OverviewLog({
             />
           </TabsContent>
 
-          <TabsContent value="log" className="mt-0">
+          <TabsContent value="log" className="mt-2 px-3">
             <ExpenseLog
               expenses={expenses.filter((e) => e.date.startsWith(monthKey))}
               categories={categories}

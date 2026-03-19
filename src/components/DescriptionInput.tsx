@@ -10,7 +10,7 @@ interface DescriptionInputProps {
 export function DescriptionInput({ value, onChange }: DescriptionInputProps) {
   return (
     <div className="space-y-1">
-      <div className="text-xs text-muted-foreground px-1">
+      <div className="text-sm text-muted-foreground px-1">
         Description (optional)
       </div>
       <Input

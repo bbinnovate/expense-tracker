@@ -105,9 +105,29 @@ export function ExpenseLog({
 
   return (
     <div className="animate-fade-in">
+      {/* Sticky header: day + filter chips */}
+      <div className="sticky top-0 z-10 bg-background pb-2">
       {/* Day selector */}
       {activeDates.length > 1 && (
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-2">
+          {/* All chip */}
+          <button
+            onClick={() => setFilterDate(null)}
+            className={cn(
+              "shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors",
+              filterDate === null
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground",
+            )}
+          >
+            <span className="font-semibold text-base leading-tight">All</span>
+            <span className="text-xs opacity-70">days</span>
+          </button>
+
+          {/* Vertical divider */}
+          <div className="w-px h-8 bg-border shrink-0" />
+
+          {/* Day chips */}
           {activeDates.map((date) => {
             const d = parseISO(date);
             const isSelected = filterDate === date;
@@ -116,14 +136,14 @@ export function ExpenseLog({
                 key={date}
                 onClick={() => setFilterDate(isSelected ? null : date)}
                 className={cn(
-                  "shrink-0 flex flex-col items-center px-3 py-1.5 rounded-xl text-xs transition-colors",
+                  "shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors",
                   isSelected
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-muted-foreground",
                 )}
               >
                 <span className="font-semibold text-base leading-tight">{format(d, "d")}</span>
-                <span className="text-[10px] opacity-70">{format(d, "EEE")}</span>
+                <span className="text-xs opacity-70">{format(d, "EEE")}</span>
               </button>
             );
           })}
@@ -139,7 +159,7 @@ export function ExpenseLog({
               key={c.id}
               onClick={() => setFilterCategory(filterCategory === c.id ? null : c.id)}
               className={cn(
-                "shrink-0 flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full transition-colors",
+                "shrink-0 flex items-center gap-1.5 text-sm px-3 py-2 rounded-full transition-colors",
                 filterCategory === c.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground",
@@ -158,7 +178,7 @@ export function ExpenseLog({
               key={m.id}
               onClick={() => setFilterMember(filterMember === m.id ? null : m.id)}
               className={cn(
-                "shrink-0 text-xs px-2.5 py-1.5 rounded-full transition-colors",
+                "shrink-0 text-sm px-3 py-2 rounded-full transition-colors",
                 filterMember === m.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground",
@@ -172,24 +192,25 @@ export function ExpenseLog({
           {hasFilter && (
             <button
               onClick={() => { setFilterCategory(null); setFilterMember(null); setFilterDate(null); }}
-              className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
+              className="p-2.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
             >
               <X className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           )}
           <button
             onClick={onExport}
-            className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
+            className="p-2.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
       </div>
+      </div>{/* end sticky header */}
 
       {Object.keys(grouped).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <div className="text-3xl mb-2">📝</div>
-          <div className="text-xs">
+          <div className="text-sm">
             {hasFilter ? "No expenses match this filter" : "No expenses this month"}
           </div>
         </div>
@@ -198,39 +219,34 @@ export function ExpenseLog({
           {Object.entries(grouped).map(([date, dayExpenses]) => {
             const dayTotal = dayExpenses.reduce((s, e) => s + e.amount, 0);
             return (
-              <div key={date}>
+              <div key={date} className="expense-card overflow-hidden">
                 {/* Day header */}
-                <div className="flex items-center justify-between px-1 mb-1.5">
-                  <span className="text-xs font-medium text-muted-foreground">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     {formatDay(date)}
                   </span>
-                  <span className="text-xs font-semibold text-foreground font-mono">
+                  <span className="text-xs font-semibold text-muted-foreground font-mono">
                     ₹{dayTotal.toLocaleString("en-IN")}
                   </span>
                 </div>
 
                 {/* Expense rows */}
-                <div className="space-y-1">
+                <div className="divide-y divide-border/40">
                   {dayExpenses.map((expense) => (
-                    <div key={expense.id} className="expense-card p-3 flex items-center gap-3">
+                    <div key={expense.id} className="flex items-center gap-3 px-3 py-3">
                       {/* Color dot */}
                       <div
-                        className="w-2 h-2 rounded-full shrink-0 mt-0.5"
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: categoryColor(expense.categoryId) }}
                       />
 
-                      {/* Main info */}
+                      {/* Category + description */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-semibold text-foreground font-mono text-sm">
-                            ₹{expense.amount.toLocaleString("en-IN")}
-                          </span>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {getCategoryName(expense.categoryId)}
-                          </span>
+                        <div className="text-sm font-medium text-foreground truncate">
+                          {getCategoryName(expense.categoryId)}
                         </div>
                         {(expense.description || expense.whoSpent !== "me") && (
-                          <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                          <div className="text-xs text-muted-foreground/60 truncate mt-0.5">
                             {[
                               expense.description,
                               expense.whoSpent !== "me" ? getMemberName(expense.whoSpent) : null,
@@ -239,19 +255,24 @@ export function ExpenseLog({
                         )}
                       </div>
 
+                      {/* Amount */}
+                      <span className="font-semibold text-primary font-mono text-base shrink-0">
+                        ₹{expense.amount.toLocaleString("en-IN")}
+                      </span>
+
                       {/* Actions */}
                       <div className="flex gap-0.5 shrink-0">
                         <button
                           onClick={() => onEditExpense(expense)}
-                          className="p-1.5 rounded-md hover:bg-secondary transition-colors"
+                          className="p-2 rounded-md hover:bg-secondary transition-colors"
                         >
-                          <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+                          <Edit2 className="w-4 h-4 text-muted-foreground/50" />
                         </button>
                         <button
                           onClick={() => setDeleteId(expense.id)}
-                          className="p-1.5 rounded-md hover:bg-destructive/20 transition-colors"
+                          className="p-2 rounded-md hover:bg-destructive/10 transition-colors"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <Trash2 className="w-4 h-4 text-destructive/60" />
                         </button>
                       </div>
                     </div>

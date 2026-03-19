@@ -26,7 +26,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
 
     return (
       <div className="flex flex-col items-center gap-1">
-        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+        <div className="text-xs text-muted-foreground uppercase tracking-wider">
           Amount
         </div>
         <div className="relative w-full">

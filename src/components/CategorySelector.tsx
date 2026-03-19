@@ -20,7 +20,7 @@ export function CategorySelector({
 }: CategorySelectorProps) {
   return (
     <div className="relative">
-      <div className="max-h-[40vh] overflow-y-auto">
+      <div className="max-h-[38vh] overflow-y-auto">
         <div className="grid grid-cols-2 gap-1.5 pb-10">
           {categories.map((category) => {
             const budget = getBudget?.(category.id) ?? 0;
@@ -38,7 +38,7 @@ export function CategorySelector({
                 key={category.id}
                 onClick={() => onSelect(selected === category.id ? null : category.id)}
                 className={cn(
-                  "category-chip relative h-11 text-sm px-3 flex items-center justify-between overflow-hidden",
+                  "category-chip relative h-10 text-sm px-3 flex items-center justify-between overflow-hidden",
                   selected === category.id
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground",
