@@ -39,13 +39,8 @@ export function useFCM() {
 
     (async () => {
       try {
-        // Register SW if not already registered (handles case where first enable() failed mid-way)
-        let swReg = await navigator.serviceWorker
-          .getRegistration(SW_PATH)
-          .catch(() => undefined);
-        if (!swReg) {
-          swReg = await navigator.serviceWorker.register(SW_PATH);
-        }
+        await navigator.serviceWorker.register(SW_PATH).catch(() => {});
+        const swReg = await navigator.serviceWorker.ready;
 
         const messaging = getFirebaseMessaging();
         if (!messaging) return;
@@ -88,7 +83,9 @@ export function useFCM() {
       setPermission(perm);
       if (perm !== "granted") { toast.error("DBG: perm=" + perm); return; }
 
-      const swReg = await navigator.serviceWorker.register(SW_PATH);
+      await navigator.serviceWorker.register(SW_PATH);
+      // Wait for SW to become active — iOS requires this before subscribing
+      const swReg = await navigator.serviceWorker.ready;
       const messaging = getFirebaseMessaging();
       if (!messaging) { toast.error("DBG: no messaging"); return; }
 
