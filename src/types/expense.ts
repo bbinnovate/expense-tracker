@@ -35,13 +35,15 @@ export interface MonthlyBudget {
 
 export const DEFAULT_CATEGORIES: Category[] = [
   { id: "groceries", name: "Groceries" },
-  { id: "milk", name: "Milk & Daily" },
-  { id: "baby", name: "Baby" },
-  { id: "utilities", name: "Utilities" },
+  { id: "restaurants", name: "Restaurants" },
   { id: "transport", name: "Transport" },
-  { id: "eating-out", name: "Eating Out" },
-  { id: "salaries", name: "Salaries" },
-  { id: "home-decor", name: "Home Decor" },
-  { id: "guests", name: "Guests" },
+  { id: "rent-bills", name: "Rent & Bills" },
+  { id: "shopping", name: "Shopping" },
+  { id: "health", name: "Health & Medical" },
+  { id: "entertainment", name: "Entertainment" },
+  { id: "personal-care", name: "Personal Care" },
+  { id: "education", name: "Education" },
+  { id: "subscriptions", name: "Subscriptions" },
+  { id: "travel", name: "Travel" },
   { id: "misc", name: "Misc" },
 ];
