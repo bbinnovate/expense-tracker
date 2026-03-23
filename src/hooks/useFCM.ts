@@ -63,21 +63,18 @@ export function useFCM() {
 
   const enable = useCallback(async () => {
     try {
-      if (!user) { toast.error("DBG: no user"); return; }
-      if (!isSupported) { toast.error("DBG: push not supported"); return; }
+      if (!user || !isSupported) return;
 
       const perm = await Notification.requestPermission();
-      if (perm !== "granted") { toast.error("DBG: perm=" + perm); return; }
+      if (perm !== "granted") return;
 
       await navigator.serviceWorker.register(SW_PATH);
       const swReg = await navigator.serviceWorker.ready;
-      toast("DBG: SW ready");
 
       const sub = await swReg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
       });
-      toast("DBG: subscribed");
 
       await setDoc(doc(db, "users", user.id, "pushSubscriptions", btoa(sub.endpoint).slice(-20)), {
         subscription: sub.toJSON(),
@@ -88,8 +85,8 @@ export function useFCM() {
       localStorage.setItem("vapid-public-key", VAPID_PUBLIC_KEY);
       setIsEnabled(true);
       toast.success("Notifications enabled ✓");
-    } catch (err) {
-      toast.error("DBG: " + (err instanceof Error ? err.message : String(err)));
+    } catch {
+      // silent
     }
   }, [user, isSupported]);
 
