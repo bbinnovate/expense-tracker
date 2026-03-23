@@ -11,7 +11,7 @@ import {
 } from "@/lib/firebase-messaging";
 import { toast } from "sonner";
 
-const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY!;
+const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuieh3NRQS7cS_w5wMIXcrsemmvEYyevEOelO5Y";
 const SW_PATH = "/firebase-messaging-sw.js";
 
 export function useFCM() {
