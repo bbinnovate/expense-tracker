@@ -81,21 +81,22 @@ export function useFCM() {
 
   const enable = useCallback(async () => {
     try {
-      if (!user || !isSupported) return;
+      if (!user) { toast.error("DBG: no user"); return; }
+      if (!isSupported) { toast.error("DBG: not supported"); return; }
 
       const perm = await Notification.requestPermission();
       setPermission(perm);
-      if (perm !== "granted") return;
+      if (perm !== "granted") { toast.error("DBG: perm=" + perm); return; }
 
       const swReg = await navigator.serviceWorker.register(SW_PATH);
       const messaging = getFirebaseMessaging();
-      if (!messaging) return;
+      if (!messaging) { toast.error("DBG: no messaging"); return; }
 
       const token = await getToken(messaging, {
         vapidKey: VAPID_KEY,
         serviceWorkerRegistration: swReg,
       });
-      if (!token) return;
+      if (!token) { toast.error("DBG: no token"); return; }
 
       await setDoc(doc(db, "users", user.id, "fcmTokens", token), {
         updatedAt: new Date(),
@@ -104,9 +105,9 @@ export function useFCM() {
 
       setIsEnabled(true);
       setupForegroundHandler(messaging);
-      toast.success("Notifications enabled");
+      toast.success("Notifications enabled ✓");
     } catch (err) {
-      console.error("[FCM] enable failed:", err);
+      toast.error("DBG: " + (err instanceof Error ? err.message : String(err)));
     }
   }, [user, isSupported, setupForegroundHandler]);
 
