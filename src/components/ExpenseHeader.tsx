@@ -35,6 +35,7 @@ export function ExpenseHeader({
           <span className="text-sm font-semibold text-primary">₹{totalSpent.toLocaleString("en-IN")}</span>
         </div>
 
+        <div className="flex items-center gap-1">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="h-auto py-0.5 px-2 hover:bg-secondary rounded-lg gap-1.5">
@@ -53,6 +54,7 @@ export function ExpenseHeader({
             />
           </PopoverContent>
         </Popover>
+        </div>
       </div>
     </div>
   );

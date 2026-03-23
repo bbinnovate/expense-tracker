@@ -8,6 +8,8 @@ import { OverviewLog } from "@/components/OverviewLog";
 import { EditExpenseDialog } from "@/components/EditExpenseDialog";
 import { useExpenses } from "@/hooks/useExpenses";
 import { Expense } from "@/types/expense";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { NotificationPrompt } from "@/components/NotificationPrompt";
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<NavTab>("add");
@@ -129,6 +131,9 @@ export function HomePage() {
         onSave={handleSave}
         canSave={activeTab === "add" && canSave}
       />
+
+      <InstallPrompt />
+      <NotificationPrompt />
 
       <EditExpenseDialog
         expense={editingExpense}

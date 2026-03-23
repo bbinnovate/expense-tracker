@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
   title: "Expense Tracker",
   description: "Track your household expenses",
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {

@@ -10,6 +10,7 @@ import { DescriptionInput } from "./DescriptionInput";
 import { ExpenseHeader } from "./ExpenseHeader";
 import { Category, WhoSpent, HouseholdMember } from "@/types/expense";
 import { toast } from "sonner";
+import { useFCMContext } from "@/context/FCMContext";
 
 function SuccessPopup({ amount, category, onDone }: { amount: number; category: string; onDone: () => void }) {
   useEffect(() => {
@@ -75,6 +76,7 @@ export function ExpenseEntry({
   onCanSubmitChange,
   submitRef,
 }: ExpenseEntryProps) {
+  const { notify } = useFCMContext();
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [whoSpent, setWhoSpent] = useState<WhoSpent>("me");
@@ -113,6 +115,18 @@ export function ExpenseEntry({
       const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "Uncategorized";
       setSuccessData({ amount: numAmount, category: categoryName });
 
+      // Budget overspend notification
+      const budget = getBudget(categoryId);
+      if (budget > 0) {
+        const newSpent = getSpentByCategory(categoryId) + numAmount;
+        if (newSpent > budget) {
+          notify(
+            "Budget Alert",
+            `${categoryName} is over budget · ₹${Math.round(newSpent).toLocaleString("en-IN")} / ₹${budget.toLocaleString("en-IN")}`
+          );
+        }
+      }
+
       inputRef.current?.focus();
     } catch (err) {
       console.error("[addExpense] failed:", err);
@@ -131,7 +145,7 @@ export function ExpenseEntry({
         },
       });
     }
-  }, [amount, categoryId, whoSpent, description, date, onAddExpense, categories]);
+  }, [amount, categoryId, whoSpent, description, date, onAddExpense, categories, getBudget, getSpentByCategory, notify]);
 
   useEffect(() => {
     submitRef.current = handleSubmit;
