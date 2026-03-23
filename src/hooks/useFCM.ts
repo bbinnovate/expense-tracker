@@ -43,7 +43,18 @@ export function useFCM() {
         await navigator.serviceWorker.register(SW_PATH);
         const swReg = await navigator.serviceWorker.ready;
         const sub = await swReg.pushManager.getSubscription();
-        if (sub) setIsEnabled(true);
+        if (!sub) return;
+
+        // If VAPID key changed, unsubscribe the stale subscription so the prompt re-appears
+        const storedKey = localStorage.getItem("vapid-public-key");
+        if (storedKey !== VAPID_PUBLIC_KEY) {
+          await sub.unsubscribe();
+          localStorage.removeItem("vapid-public-key");
+          localStorage.removeItem("notif-prompt-dismissed");
+          return; // isEnabled stays false → prompt will show
+        }
+
+        setIsEnabled(true);
       } catch {
         // silent
       }
@@ -74,6 +85,7 @@ export function useFCM() {
         userAgent: navigator.userAgent,
       });
 
+      localStorage.setItem("vapid-public-key", VAPID_PUBLIC_KEY);
       setIsEnabled(true);
       toast.success("Notifications enabled ✓");
     } catch (err) {
