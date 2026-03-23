@@ -3,14 +3,13 @@ import { auth } from "@clerk/nextjs/server";
 import { adminDb } from "@/lib/firebase-admin";
 import webpush from "web-push";
 
-webpush.setVapidDetails(
-  "mailto:" + (process.env.VAPID_CONTACT_EMAIL || "admin@expensetracker.app"),
-  process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
-    "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuiePh3NRQS7cS_w5wMIXcrsemmvEYyevEOeIO5Y",
-  process.env.VAPID_PRIVATE_KEY || ""
-);
-
 export async function POST(req: NextRequest) {
+  webpush.setVapidDetails(
+    "mailto:" + (process.env.VAPID_CONTACT_EMAIL || "admin@expensetracker.app"),
+    process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
+      "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuiePh3NRQS7cS_w5wMIXcrsemmvEYyevEOeIO5Y",
+    process.env.VAPID_PRIVATE_KEY || ""
+  );
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
