@@ -1,31 +1,21 @@
-importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
+// Plain Web Push service worker — no Firebase SDK needed
+self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (e) => e.waitUntil(clients.claim()));
 
-firebase.initializeApp({
-  apiKey: "AIzaSyAqJCrml0KEzL2ijjqfz9tRiZTM10_eUUE",
-  authDomain: "expense-tracker-358a4.firebaseapp.com",
-  projectId: "expense-tracker-358a4",
-  storageBucket: "expense-tracker-358a4.firebasestorage.app",
-  messagingSenderId: "1090282183350",
-  appId: "1:1090282183350:web:0eacef6074ab73f50a2417",
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+  const data = event.data.json();
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Expense Tracker", {
+      body: data.body || "",
+      icon: "/icon-192.png",
+      badge: "/icon-96.png",
+      tag: data.tag || "expense-notification",
+      data: { url: data.url || "/" },
+    })
+  );
 });
 
-const messaging = firebase.messaging();
-
-// Handle background push messages
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || "Expense Tracker";
-  const body = payload.notification?.body || "";
-  self.registration.showNotification(title, {
-    body,
-    icon: "/icon-192.png",
-    badge: "/icon-96.png",
-    tag: payload.data?.tag || "expense-notification",
-    data: { url: payload.data?.url || "/" },
-  });
-});
-
-// Open / focus the app when notification is tapped
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(

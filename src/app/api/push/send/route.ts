@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { adminDb, adminMessaging } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
+import webpush from "web-push";
+
+webpush.setVapidDetails(
+  "mailto:" + (process.env.VAPID_CONTACT_EMAIL || "admin@expensetracker.app"),
+  process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
+    "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuiePh3NRQS7cS_w5wMIXcrsemmvEYyevEOeIO5Y",
+  process.env.VAPID_PRIVATE_KEY || ""
+);
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -10,37 +18,31 @@ export async function POST(req: NextRequest) {
 
   const { title, body, url } = await req.json();
 
-  // Fetch all FCM tokens registered for this user
   const snapshot = await adminDb
     .collection("users")
     .doc(userId)
-    .collection("fcmTokens")
+    .collection("pushSubscriptions")
     .get();
 
   if (snapshot.empty) {
     return NextResponse.json({ ok: true, sent: 0 });
   }
 
-  const tokens = snapshot.docs.map((d) => d.id);
+  const payload = JSON.stringify({ title, body, url: url || "/" });
 
-  const response = await adminMessaging.sendEachForMulticast({
-    tokens,
-    notification: { title, body },
-    webpush: {
-      notification: {
-        icon: "/icon-192.png",
-        badge: "/icon-96.png",
-        requireInteraction: false,
-      },
-      fcmOptions: { link: url || "/" },
-    },
-  });
+  const results = await Promise.allSettled(
+    snapshot.docs.map(async (d) => {
+      const { subscription } = d.data() as { subscription: webpush.PushSubscription };
+      await webpush.sendNotification(subscription, payload);
+    })
+  );
 
-  // Remove any expired / invalid tokens
-  const cleanups = response.responses
-    .map((r, i) => (!r.success ? snapshot.docs[i].ref.delete() : null))
+  // Clean up expired subscriptions
+  const cleanups = results
+    .map((r, i) => (r.status === "rejected" ? snapshot.docs[i].ref.delete() : null))
     .filter(Boolean);
   await Promise.all(cleanups as Promise<FirebaseFirestore.WriteResult>[]);
 
-  return NextResponse.json({ ok: true, sent: response.successCount });
+  const sent = results.filter((r) => r.status === "fulfilled").length;
+  return NextResponse.json({ ok: true, sent });
 }
