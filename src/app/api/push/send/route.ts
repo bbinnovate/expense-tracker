@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     webpush.setVapidDetails(
       "mailto:" + (process.env.VAPID_CONTACT_EMAIL || "admin@expensetracker.app"),
       process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
-        "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuiePh3NRQS7cS_w5wMIXcrsemmvEYyevEOeIO5Y",
+        "BOxFY-e5ghVsfJOYKeyM-EugNy6sbFREyPu8Au28OZFRKAmi_O2vaEQzcsKp4mgeBAYYjr-KphrQudV3WJOnUsU",
       process.env.VAPID_PRIVATE_KEY || ""
     );
   } catch (err) {

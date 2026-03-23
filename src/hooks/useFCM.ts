@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const VAPID_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
-  "BMN5DT4FHLMbTgLMtpgYtY9d_QZRqNl4IAzoVTvSjRPT-sZDuiePh3NRQS7cS_w5wMIXcrsemmvEYyevEOeIO5Y";
+  "BOxFY-e5ghVsfJOYKeyM-EugNy6sbFREyPu8Au28OZFRKAmi_O2vaEQzcsKp4mgeBAYYjr-KphrQudV3WJOnUsU";
 
 const SW_PATH = "/firebase-messaging-sw.js";
 
