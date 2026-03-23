@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "Expense Tracker",
   description: "Track your household expenses",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon-32.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {

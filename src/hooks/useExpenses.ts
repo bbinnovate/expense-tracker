@@ -3,6 +3,7 @@ import { useUser } from "@clerk/nextjs";
 import {
   collection,
   doc,
+  getDoc,
   onSnapshot,
   setDoc,
   updateDoc,
@@ -33,6 +34,7 @@ export function useExpenses() {
   const [members, setMembers] = useState<HouseholdMember[]>(DEFAULT_MEMBERS);
   // Flat budget targets: categoryId -> monthly amount (applies to every month)
   const [budgetTargets, setBudgetTargets] = useState<Record<string, number>>({});
+  const [streak, setStreak] = useState({ count: 0, lastDate: "" });
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Sync Clerk user profile → Firestore users/{userId}
@@ -50,6 +52,17 @@ export function useExpenses() {
       { merge: true },
     );
   }, [userId, user]);
+
+  // Load streak data once on sign-in
+  useEffect(() => {
+    if (!userId) return;
+    getDoc(doc(db, "users", userId)).then((snap) => {
+      const data = snap.data();
+      if (data?.streakCount && data?.streakLastDate) {
+        setStreak({ count: data.streakCount, lastDate: data.streakLastDate });
+      }
+    }).catch(() => {});
+  }, [userId]);
 
   // Real-time listener for expenses (user-scoped)
   useEffect(() => {
@@ -237,9 +250,28 @@ export function useExpenses() {
         doc(db, "users", userId, "expenses", newExpense.id),
         newExpense,
       );
-      return newExpense;
+      // Track last entry time + streak
+      const today = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      let newCount = 1;
+      if (streak.lastDate === today) {
+        newCount = streak.count; // same day, no change
+      } else if (streak.lastDate === yesterday) {
+        newCount = streak.count + 1; // consecutive day
+      }
+      const newStreak = { count: newCount, lastDate: today };
+      setStreak(newStreak);
+      await setDoc(doc(db, "users", userId), {
+        lastEntryAt: new Date().toISOString(),
+        streakCount: newCount,
+        streakLastDate: today,
+      }, { merge: true });
+
+      const MILESTONES = [3, 7, 14, 30];
+      const streakMilestone = streak.lastDate !== today && MILESTONES.includes(newCount) ? newCount : null;
+      return { expense: newExpense, streakMilestone };
     },
-    [userId],
+    [userId, streak],
   );
 
   const updateExpense = useCallback(

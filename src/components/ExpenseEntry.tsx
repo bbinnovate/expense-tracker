@@ -98,13 +98,13 @@ export function ExpenseEntry({
     if (!numAmount || numAmount <= 0 || !categoryId) return;
 
     try {
-      await onAddExpense({
+      const result = await onAddExpense({
         amount: numAmount,
         categoryId,
         whoSpent,
         description: description.trim(),
         date: format(date, "yyyy-MM-dd"),
-      });
+      }) as { streakMilestone?: number | null } | undefined;
 
       setAmount("");
       setCategoryId(null);
@@ -115,16 +115,48 @@ export function ExpenseEntry({
       const categoryName = categories.find((c) => c.id === categoryId)?.name ?? "Uncategorized";
       setSuccessData({ amount: numAmount, category: categoryName });
 
-      // Budget overspend notification
+      const fmt = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+
+      // Budget alerts
       const budget = getBudget(categoryId);
       if (budget > 0) {
-        const newSpent = getSpentByCategory(categoryId) + numAmount;
+        const prevSpent = getSpentByCategory(categoryId);
+        const newSpent = prevSpent + numAmount;
+        const prevPct = (prevSpent / budget) * 100;
+        const newPct = (newSpent / budget) * 100;
+
         if (newSpent > budget) {
           notify(
-            "Budget Alert",
-            `${categoryName} is over budget · ₹${Math.round(newSpent).toLocaleString("en-IN")} / ₹${budget.toLocaleString("en-IN")}`
+            "Oops, over budget 😬",
+            `${categoryName} hit ${fmt(newSpent)} — budget is ${fmt(budget)}`
+          );
+        } else if (newPct >= 80 && prevPct < 80) {
+          notify(
+            "Heads up! 👀",
+            `${categoryName} is at ${Math.round(newPct)}% of your budget (${fmt(newSpent)} / ${fmt(budget)})`
           );
         }
+      }
+
+      // Large single expense alert (> 50% of budget, or > ₹5000 if no budget set)
+      const largeThreshold = budget > 0 ? budget * 0.5 : 5000;
+      if (numAmount >= largeThreshold && numAmount >= 500) {
+        notify(
+          "Big spend! 💸",
+          `${fmt(numAmount)} in ${categoryName} — is that right?`
+        );
+      }
+
+      // Streak milestone
+      const milestone = result?.streakMilestone;
+      if (milestone) {
+        const msgs: Record<number, string> = {
+          3:  "3 days logging in a row — nice start! 🙌",
+          7:  "A whole week of tracking! You're on a roll 🔥",
+          14: "2 weeks straight — you've got this habit down 💪",
+          30: "30 days! You're basically a finance pro now 🏆",
+        };
+        notify("Logging streak!", msgs[milestone] ?? `${milestone} days in a row!`);
       }
 
       inputRef.current?.focus();
