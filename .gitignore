@@ -30,3 +30,9 @@ dist-ssr
 
 /.next
 expense-tracker-358a4-firebase-adminsdk-fbsvc-cce5ceefc9.json
+
+# next-pwa generated files
+public/sw.js
+public/workbox-*.js
+public/sw.js.map
+public/workbox-*.js.map
