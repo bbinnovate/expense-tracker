@@ -28,6 +28,15 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className="dark">
+        <head>
+          {/* Capture beforeinstallprompt before React mounts */}
+          <script dangerouslySetInnerHTML={{ __html: `
+            window.addEventListener('beforeinstallprompt', function(e) {
+              e.preventDefault();
+              window.__installPromptEvent = e;
+            });
+          `}} />
+        </head>
         <body>
           <Providers>{children}</Providers>
         </body>

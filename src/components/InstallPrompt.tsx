@@ -18,8 +18,6 @@ export function InstallPrompt() {
   useEffect(() => {
     // Already running as installed PWA
     if (window.matchMedia("(display-mode: standalone)").matches) return;
-    // User already dismissed
-    if (localStorage.getItem("pwa-install-dismissed")) return;
 
     const ios =
       /iPad|iPhone|iPod/.test(navigator.userAgent) &&
@@ -33,7 +31,15 @@ export function InstallPrompt() {
       return;
     }
 
-    // Android/Chrome: wait for the install prompt event
+    // Android/Chrome: check if event was already captured before React mounted
+    const captured = (window as unknown as { __installPromptEvent?: BeforeInstallPromptEvent }).__installPromptEvent;
+    if (captured) {
+      setDeferredPrompt(captured);
+      setShow(true);
+      return;
+    }
+
+    // Otherwise listen for it
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -53,7 +59,6 @@ export function InstallPrompt() {
 
   const handleDismiss = () => {
     setShow(false);
-    localStorage.setItem("pwa-install-dismissed", "1");
   };
 
   if (!show) return null;
