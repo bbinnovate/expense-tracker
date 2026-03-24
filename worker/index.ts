@@ -7,8 +7,6 @@
     (self as any).registration.showNotification(data.title || "Expense Tracker", {
       body: data.body || "",
       icon: "/icon-192.png",
-      badge: "/icon-96.png",
-      tag: data.tag || "expense-notification",
       data: { url: data.url || "/" },
     })
   );

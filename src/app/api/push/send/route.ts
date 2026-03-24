@@ -35,13 +35,18 @@ export async function POST(req: NextRequest) {
 
   const results = await Promise.allSettled(
     snapshot.docs.map(async (d) => {
-      const { subscription } = d.data() as { subscription: webpush.PushSubscription };
+      const { subscription, userAgent } = d.data() as { subscription: webpush.PushSubscription; userAgent?: string };
       await webpush.sendNotification(subscription, payload);
+      return { doc: d.id, userAgent };
     })
   );
 
   const errors = results
-    .map((r, i) => r.status === "rejected" ? { doc: snapshot.docs[i].id, error: (r.reason as Error)?.message } : null)
+    .map((r, i) => r.status === "rejected" ? { doc: snapshot.docs[i].id, userAgent: (snapshot.docs[i].data() as { userAgent?: string }).userAgent, error: (r.reason as Error)?.message } : null)
+    .filter(Boolean);
+
+  const delivered = results
+    .map((r) => r.status === "fulfilled" ? { doc: r.value.doc, userAgent: r.value.userAgent } : null)
     .filter(Boolean);
 
   // Only clean up truly expired subscriptions (410 Gone)
@@ -57,5 +62,5 @@ export async function POST(req: NextRequest) {
   await Promise.all(cleanups as Promise<FirebaseFirestore.WriteResult>[]);
 
   const sent = results.filter((r) => r.status === "fulfilled").length;
-  return NextResponse.json({ ok: true, sent, errors });
+  return NextResponse.json({ ok: true, sent, delivered, errors });
 }
