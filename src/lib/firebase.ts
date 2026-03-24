@@ -1,5 +1,10 @@
 import { initializeApp, getApps } from "firebase/app";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAqJCrml0KEzL2ijjqfz9tRiZTM10_eUUE",
@@ -11,15 +16,20 @@ const firebaseConfig = {
   measurementId: "G-1F4YWNB748",
 };
 
-// Prevent re-initialization during hot reload in Next.js
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// Use persistent cache — works across multiple tabs, queues writes offline
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
-  }),
-});
+// initializeFirestore can only be called once per app — fall back to getFirestore if already done
+export const db = (() => {
+  try {
+    return initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    return getFirestore(app);
+  }
+})();
 
 export default app;

@@ -85,8 +85,8 @@ export function useFCM() {
       localStorage.setItem("vapid-public-key", VAPID_PUBLIC_KEY);
       setIsEnabled(true);
       toast.success("Notifications enabled ✓");
-    } catch {
-      // silent
+    } catch (err) {
+      toast.error("Push error: " + (err instanceof Error ? err.message : String(err)));
     }
   }, [user, isSupported]);
 
