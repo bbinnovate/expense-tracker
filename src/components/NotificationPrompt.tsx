@@ -9,7 +9,9 @@ export function NotificationPrompt() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("notif-prompt-dismissed")) return;
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    // In installed PWA, always re-ask even if previously dismissed in browser
+    if (!isStandalone && localStorage.getItem("notif-prompt-dismissed")) return;
     if (!("Notification" in window)) return;
 
     if (Notification.permission === "denied") return;
