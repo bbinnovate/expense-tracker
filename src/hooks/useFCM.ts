@@ -10,7 +10,7 @@ const VAPID_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ||
   "BOxFY-e5ghVsfJOYKeyM-EugNy6sbFREyPu8Au28OZFRKAmi_O2vaEQzcsKp4mgeBAYYjr-KphrQudV3WJOnUsU";
 
-const SW_PATH = "/firebase-messaging-sw.js";
+const SW_PATH = "/sw.js";
 
 // Convert base64url string → Uint8Array (required by pushManager.subscribe)
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
