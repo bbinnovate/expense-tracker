@@ -40,12 +40,22 @@ export async function POST(req: NextRequest) {
     })
   );
 
-  // Clean up expired subscriptions
+  const errors = results
+    .map((r, i) => r.status === "rejected" ? { doc: snapshot.docs[i].id, error: (r.reason as Error)?.message } : null)
+    .filter(Boolean);
+
+  // Only clean up truly expired subscriptions (410 Gone)
   const cleanups = results
-    .map((r, i) => (r.status === "rejected" ? snapshot.docs[i].ref.delete() : null))
+    .map((r, i) => {
+      if (r.status === "rejected") {
+        const status = (r.reason as { statusCode?: number })?.statusCode;
+        return status === 410 || status === 404 ? snapshot.docs[i].ref.delete() : null;
+      }
+      return null;
+    })
     .filter(Boolean);
   await Promise.all(cleanups as Promise<FirebaseFirestore.WriteResult>[]);
 
   const sent = results.filter((r) => r.status === "fulfilled").length;
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent, errors });
 }
