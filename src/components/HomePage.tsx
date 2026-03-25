@@ -24,7 +24,6 @@ export function HomePage() {
     categories,
     members,
     isLoaded,
-    isMigrating,
     addExpense,
     updateExpense,
     deleteExpense,
@@ -83,14 +82,9 @@ export function HomePage() {
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-background">
-      {(!isLoaded || isMigrating) && (
+      {!isLoaded && (
         <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-primary/20 overflow-hidden">
           <div className="h-full bg-primary animate-[shimmer_1.2s_ease-in-out_infinite] w-1/2" />
-        </div>
-      )}
-      {isMigrating && (
-        <div className="fixed inset-0 z-40 bg-background/80 flex items-center justify-center">
-          <p className="text-sm text-muted-foreground">Restoring your data...</p>
         </div>
       )}
       <main className="max-w-lg mx-auto h-full flex flex-col">

@@ -36,7 +36,6 @@ export function useExpenses() {
   const [budgetTargets, setBudgetTargets] = useState<Record<string, number>>({});
   const [streak, setStreak] = useState({ count: 0, lastDate: "" });
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
 
   // Sync Clerk user profile → Firestore users/{userId}, then trigger migration if needed
   useEffect(() => {
@@ -46,14 +45,7 @@ export function useExpenses() {
       doc(db, "users", userId),
       { clerkId: userId, email, name: user.fullName ?? "", imageUrl: user.imageUrl ?? "", lastSeen: serverTimestamp() },
       { merge: true },
-    ).then(() => {
-      // Run migration once per user (API checks migratedAt flag)
-      setIsMigrating(true);
-      fetch("/api/migrate", { method: "POST" })
-        .then((r) => r.json())
-        .catch(() => {})
-        .finally(() => setIsMigrating(false));
-    });
+    );
   }, [userId, user]);
 
   // Load streak data once on sign-in
@@ -412,7 +404,6 @@ export function useExpenses() {
     categories,
     members,
     isLoaded,
-    isMigrating,
     addExpense,
     updateExpense,
     deleteExpense,
