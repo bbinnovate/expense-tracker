@@ -45,18 +45,24 @@ export function CategorySelector({
                 )}
               >
                 <span className="truncate text-left">{category.name}</span>
-                {budget > 0 && selected !== category.id && (
+                {selected !== category.id && (
                   <span className={cn(
                     "text-[10px] font-semibold shrink-0 ml-1",
-                    isOver ? "text-red-500" : percentage >= 80 ? "text-red-500" : percentage >= 40 ? "text-yellow-500" : "text-green-500"
+                    budget > 0
+                      ? isOver ? "text-red-500" : percentage >= 80 ? "text-red-500" : percentage >= 40 ? "text-yellow-500" : "text-green-500"
+                      : "text-muted-foreground"
                   )}>
-                    {isOver ? `+${Math.round(percentage - 100)}%` : `${Math.round(percentage)}%`}
+                    {budget > 0
+                      ? isOver ? `+${Math.round(percentage - 100)}%` : `${Math.round(percentage)}%`
+                      : spent > 0 ? `₹${spent >= 1000 ? `${(spent / 1000).toFixed(1)}k` : Math.round(spent)}` : ""}
                   </span>
                 )}
-                {budget > 0 && selected !== category.id && (
+                {selected !== category.id && (budget > 0 || spent > 0) && (
                   <div
-                    className={cn("absolute bottom-0 left-0 h-[3px] transition-all duration-500", barColor)}
-                    style={{ width: `${Math.min(Math.max(percentage, 4), 100)}%` }}
+                    className={cn("absolute bottom-0 left-0 h-[3px] transition-all duration-500",
+                      budget > 0 ? barColor : "bg-muted-foreground/30"
+                    )}
+                    style={{ width: budget > 0 ? `${Math.min(Math.max(percentage, 4), 100)}%` : "100%" }}
                   />
                 )}
               </button>
