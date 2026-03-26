@@ -20,8 +20,8 @@ export function CategorySelector({
 }: CategorySelectorProps) {
   return (
     <div className="relative">
-      <div className="max-h-[38vh] overflow-y-auto">
-        <div className="grid grid-cols-2 gap-1.5 pb-10">
+      <div className="max-h-[38vh] overflow-y-auto pb-4">
+        <div className="grid grid-cols-2 gap-1.5">
           {categories.map((category) => {
             const budget = getBudget?.(category.id) ?? 0;
             const spent = getSpentByCategory?.(category.id) ?? 0;

@@ -8,6 +8,7 @@ import { CategoryManager } from "./CategoryManager";
 import { WhoSelector } from "./WhoSelector";
 import { DescriptionInput } from "./DescriptionInput";
 import { ExpenseHeader } from "./ExpenseHeader";
+import { AdBannerInline } from "./AdBanner";
 import { Category, WhoSpent, HouseholdMember } from "@/types/expense";
 import { toast } from "sonner";
 import { useFCMContext } from "@/context/FCMContext";
@@ -188,7 +189,8 @@ export function ExpenseEntry({
     {successData !== null && (
       <SuccessPopup amount={successData.amount} category={successData.category} onDone={() => setSuccessData(null)} />
     )}
-    <div className="flex flex-col h-[100dvh] overflow-hidden pb-nav animate-fade-in">
+    <div className="flex flex-col animate-fade-in">
+      <AdBannerInline />
       <ExpenseHeader
         currentMonth={new Date()}
         date={date}
@@ -220,6 +222,8 @@ export function ExpenseEntry({
             getSpentByCategory={getSpentByCategory}
           />
         </div>
+
+        <AdBannerInline />
 
         <WhoSelector
           selected={whoSpent}

@@ -99,15 +99,11 @@
 
   html {
     @apply dark;
-    height: 100dvh;
-    overflow: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: "Inter", system-ui, sans-serif;
-    height: 100dvh;
-    overflow: hidden;
   }
 }
 
