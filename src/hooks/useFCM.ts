@@ -54,6 +54,13 @@ export function useFCM() {
           return; // isEnabled stays false → prompt will show
         }
 
+        // Re-save subscription under current user ID (handles user ID changes e.g. dev→prod migration)
+        await setDoc(doc(db, "users", user.id, "pushSubscriptions", btoa(sub.endpoint).slice(-20)), {
+          subscription: sub.toJSON(),
+          updatedAt: new Date(),
+          userAgent: navigator.userAgent,
+        });
+
         setIsEnabled(true);
       } catch {
         // silent
