@@ -9,6 +9,14 @@ const SINGLE_DOCS = [
   { col: "settings", id: "categoryOrder" },
 ];
 
+async function clearCollection(path: string) {
+  const snap = await adminDb.collection(path).get();
+  if (snap.empty) return;
+  const batch = adminDb.batch();
+  snap.docs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
+}
+
 async function copyCollection(fromPath: string, toPath: string) {
   const snap = await adminDb.collection(fromPath).get();
   if (snap.empty) return 0;
@@ -46,6 +54,11 @@ export async function POST() {
 
   const oldId = oldDoc.id;
   let totalCopied = 0;
+
+  // Clear any seeded defaults before copying to avoid duplicates
+  for (const col of SUBCOLLECTIONS) {
+    await clearCollection(`users/${userId}/${col}`);
+  }
 
   // Copy subcollections
   for (const col of SUBCOLLECTIONS) {

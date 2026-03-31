@@ -45,7 +45,9 @@ export function useExpenses() {
       doc(db, "users", userId),
       { clerkId: userId, email, name: user.fullName ?? "", imageUrl: user.imageUrl ?? "", lastSeen: serverTimestamp() },
       { merge: true },
-    );
+    ).then(() => {
+      fetch("/api/migrate", { method: "POST" }).catch(() => {});
+    });
   }, [userId, user]);
 
   // Load streak data once on sign-in
