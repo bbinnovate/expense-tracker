@@ -20,14 +20,14 @@ function SuccessPopup({ amount, category, onDone }: { amount: number; category: 
   }, [onDone]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="pointer-events-auto flex items-center gap-3.5 bg-emerald-950/80 border border-emerald-700/40 px-5 py-4 rounded-2xl shadow-lg animate-in fade-in zoom-in-95 duration-150 min-w-[200px]">
-        <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-          <span className="text-emerald-400 text-base font-bold">✓</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div className="pointer-events-auto flex items-center gap-4 bg-emerald-950/80 border border-emerald-700/40 px-6 py-5 rounded-2xl shadow-lg animate-in fade-in zoom-in-95 duration-150 min-w-[240px]">
+        <div className="w-11 h-11 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+          <span className="text-emerald-400 text-lg font-bold">✓</span>
         </div>
         <div className="flex flex-col gap-0.5">
-          <div className="text-[13px] font-semibold text-emerald-100">₹{amount.toLocaleString("en-IN")} · {category}</div>
-          <div className="text-xs text-emerald-400">Expense saved</div>
+          <div className="text-[15px] font-semibold text-emerald-100">₹{amount.toLocaleString("en-IN")} · {category}</div>
+          <div className="text-[13px] text-emerald-400">Expense saved</div>
         </div>
       </div>
     </div>
