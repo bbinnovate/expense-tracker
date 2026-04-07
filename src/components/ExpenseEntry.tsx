@@ -201,6 +201,8 @@ export function ExpenseEntry({
       <div className="flex-1 px-3 space-y-3">
         <AmountInput ref={inputRef} value={amount} onChange={setAmount} />
 
+        <DescriptionInput value={description} onChange={setDescription} />
+
         <div className="space-y-1.5">
           <div className="flex items-center justify-between px-1">
             <div className="text-sm text-muted-foreground">Category</div>
@@ -233,8 +235,6 @@ export function ExpenseEntry({
           onUpdateMember={onUpdateMember}
           onDeleteMember={onDeleteMember}
         />
-
-        <DescriptionInput value={description} onChange={setDescription} />
       </div>
     </div>
     </>

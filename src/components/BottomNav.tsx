@@ -65,6 +65,17 @@ export function BottomNav({
           <span className="text-xs font-medium">Overview</span>
         </button>
       </div>
+      <div className="flex flex-col items-center pt-1 pb-1 gap-1">
+        <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <a
+          href="https://bombayblokes.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors"
+        >
+          made by <span className="text-primary/80 font-medium">BombayBlokes</span>
+        </a>
+      </div>
     </nav>
   );
 }
