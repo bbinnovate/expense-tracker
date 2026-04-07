@@ -64,7 +64,7 @@ export function InstallPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 px-3 pb-2 animate-in slide-in-from-bottom-2 duration-300">
+    <div className="fixed bottom-[calc(3.5rem+2.5rem+min(env(safe-area-inset-bottom,0px),16px))] left-0 right-0 z-40 px-3 pb-2 animate-in slide-in-from-bottom-2 duration-300">
       <div className="bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3 shadow-xl">
         <div className="text-xl shrink-0">💰</div>
 

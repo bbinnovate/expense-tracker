@@ -204,7 +204,7 @@
   }
 
   .pb-nav {
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(3.5rem + 3.5rem + min(env(safe-area-inset-bottom, 0px), 16px));
   }
 
   .animate-in-up {
