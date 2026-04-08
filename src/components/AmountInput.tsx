@@ -37,14 +37,16 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             onChange={handleChange}
             disabled={disabled}
             placeholder="0"
+            size={Math.max(1, (value || "0").length)}
             className={cn(
               "amount-display text-foreground bg-transparent border-none outline-none",
-              "text-center w-full max-w-[180px]",
+              "text-center",
               "placeholder:text-muted-foreground/50",
               "focus:ring-0",
             )}
           />
         </div>
+        <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       </div>
     );
   },

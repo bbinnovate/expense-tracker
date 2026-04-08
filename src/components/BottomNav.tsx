@@ -73,7 +73,7 @@ export function BottomNav({
           rel="noopener noreferrer"
           className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors"
         >
-          made by <span className="text-primary/80 font-medium">BombayBlokes</span>
+          made by <span className="text-primary/80 font-medium">Bombay Blokes</span>
         </a>
       </div>
     </nav>

@@ -7,8 +7,7 @@ interface DescriptionInputProps {
 
 export function DescriptionInput({ value, onChange }: DescriptionInputProps) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    <div className="flex flex-col items-center">
       <input
         type="text"
         inputMode="text"
@@ -16,8 +15,9 @@ export function DescriptionInput({ value, onChange }: DescriptionInputProps) {
         placeholder="What is this for?"
         value={value}
         onChange={(e) => onChange(e.target.value.slice(0, 50))}
-        className="bg-white/5 text-sm text-foreground placeholder:text-muted-foreground/50 rounded-full px-5 py-2 border-0 focus:outline-none focus:bg-white/8 text-center w-64 transition-colors"
+        className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 border-none outline-none text-center w-64 pb-1.5"
       />
+      <div className="h-[1px] w-48 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
     </div>
   );
 }
