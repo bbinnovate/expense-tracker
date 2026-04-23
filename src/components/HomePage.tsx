@@ -7,6 +7,7 @@ import { ExpenseEntry } from "@/components/ExpenseEntry";
 import { OverviewLog } from "@/components/OverviewLog";
 import { EditExpenseDialog } from "@/components/EditExpenseDialog";
 import { useExpenses } from "@/hooks/useExpenses";
+import { usePWATracking } from "@/hooks/usePWATracking";
 import { Expense } from "@/types/expense";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
@@ -16,6 +17,8 @@ export function HomePage() {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [canSave, setCanSave] = useState(false);
   const submitRef = useRef<(() => Promise<void>) | null>(null);
+
+  usePWATracking();
 
   const {
     isSignedIn,
