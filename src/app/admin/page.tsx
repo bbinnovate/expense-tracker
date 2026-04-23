@@ -9,7 +9,9 @@ const PAGE_PASSWORD = "growbig8080";
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
-  const [unlocked, setUnlocked] = useState(false);
+  const [unlocked, setUnlocked] = useState(() =>
+    typeof window !== "undefined" && sessionStorage.getItem("admin_unlocked") === "1"
+  );
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
@@ -61,14 +63,22 @@ export default function AdminPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && password === PAGE_PASSWORD && setUnlocked(true)
-              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && password === PAGE_PASSWORD) {
+                  sessionStorage.setItem("admin_unlocked", "1");
+                  setUnlocked(true);
+                }
+              }}
               placeholder="Enter password"
               className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/30 transition-all"
             />
             <button
-              onClick={() => password === PAGE_PASSWORD && setUnlocked(true)}
+              onClick={() => {
+                if (password === PAGE_PASSWORD) {
+                  sessionStorage.setItem("admin_unlocked", "1");
+                  setUnlocked(true);
+                }
+              }}
               className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
             >
               Unlock
