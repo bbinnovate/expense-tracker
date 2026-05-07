@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const categoryTotals: Record<string, { total: number; count: number }> = {};
   const userStats: Record<string, { expenseCount: number; totalSpent: number; lastActive: string; deviceCount: number }> = {};
 
-  // Seed every registered user so the table matches the Total Users count
+  // Seed every registered user so the table matches the Total Users count-
   userDocs.forEach((ref) => {
     userStats[ref.id] = { expenseCount: 0, totalSpent: 0, lastActive: "", deviceCount: 0 };
   });
