@@ -73,7 +73,7 @@ export function useFCM() {
     if ("requestIdleCallback" in window) {
       window.requestIdleCallback(restore, { timeout: 5000 });
     } else {
-      window.setTimeout(restore, 1500);
+      globalThis.setTimeout(restore, 1500);
     }
 
     return () => {
