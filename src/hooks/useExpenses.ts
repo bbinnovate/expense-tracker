@@ -37,17 +37,15 @@ export function useExpenses() {
   const [streak, setStreak] = useState({ count: 0, lastDate: "" });
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Sync Clerk user profile → Firestore users/{userId}, then trigger migration if needed
+  // Sync Clerk user profile → Firestore users/{userId}
   useEffect(() => {
     if (!userId || !user) return;
     const email = user.primaryEmailAddress?.emailAddress ?? "";
-    setDoc(
+    void setDoc(
       doc(db, "users", userId),
       { clerkId: userId, email, name: user.fullName ?? "", imageUrl: user.imageUrl ?? "", lastSeen: serverTimestamp() },
       { merge: true },
-    ).then(() => {
-      fetch("/api/migrate", { method: "POST" }).catch(() => {});
-    });
+    );
   }, [userId, user]);
 
   // Load streak data once on sign-in

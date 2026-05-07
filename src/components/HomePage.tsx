@@ -1,16 +1,24 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { SignInButton } from "@clerk/nextjs";
 import { BottomNav, NavTab } from "@/components/BottomNav";
 import { ExpenseEntry } from "@/components/ExpenseEntry";
-import { OverviewLog } from "@/components/OverviewLog";
 import { EditExpenseDialog } from "@/components/EditExpenseDialog";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePWATracking } from "@/hooks/usePWATracking";
 import { Expense } from "@/types/expense";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+
+const OverviewLog = dynamic(
+  () => import("@/components/OverviewLog").then((mod) => mod.OverviewLog),
+  {
+    ssr: false,
+    loading: () => <div className="h-24 animate-pulse rounded-md bg-secondary/50" />,
+  },
+);
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<NavTab>("add");

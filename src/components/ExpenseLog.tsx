@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { Expense, Category, HouseholdMember } from "@/types/expense";
-import { Edit2, Trash2, Download, X } from "lucide-react";
+import { Edit2, Trash2, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,6 @@ interface ExpenseLogProps {
   members: HouseholdMember[];
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
-  onExport: () => void;
 }
 
 // Simple stable color from category id
@@ -49,7 +48,6 @@ export function ExpenseLog({
   members,
   onEditExpense,
   onDeleteExpense,
-  onExport,
 }: ExpenseLogProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -150,7 +148,7 @@ export function ExpenseLog({
         </div>
       )}
 
-      {/* Filter + export row */}
+      {/* Filter row */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar">
           {/* Category filters */}
@@ -197,12 +195,6 @@ export function ExpenseLog({
               <X className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           )}
-          <button
-            onClick={onExport}
-            className="p-2.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
-          >
-            <Download className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
         </div>
       </div>
       </div>{/* end sticky header */}

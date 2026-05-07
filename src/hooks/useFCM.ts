@@ -37,11 +37,14 @@ export function useFCM() {
   useEffect(() => {
     if (!isSupported || !user) return;
     if (Notification.permission !== "granted") return;
+    let cancelled = false;
 
-    (async () => {
+    const restore = async () => {
       try {
         await navigator.serviceWorker.register(SW_PATH);
         const swReg = await navigator.serviceWorker.ready;
+        if (cancelled) return;
+
         const sub = await swReg.pushManager.getSubscription();
         if (!sub) return;
 
@@ -65,7 +68,17 @@ export function useFCM() {
       } catch {
         // silent
       }
-    })();
+    };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(restore, { timeout: 5000 });
+    } else {
+      window.setTimeout(restore, 1500);
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [isSupported, user]);
 
   const enable = useCallback(async () => {
