@@ -8,6 +8,7 @@ import { ExpenseEntry } from "@/components/ExpenseEntry";
 import { EditExpenseDialog } from "@/components/EditExpenseDialog";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePWATracking } from "@/hooks/usePWATracking";
+import { useSessionKeepAlive } from "@/hooks/useSessionKeepAlive";
 import { Expense } from "@/types/expense";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
@@ -27,6 +28,7 @@ export function HomePage() {
   const submitRef = useRef<(() => Promise<void>) | null>(null);
 
   usePWATracking();
+  useSessionKeepAlive();
 
   const {
     isSignedIn,

@@ -31,6 +31,31 @@ dist-ssr
 /.next
 expense-tracker-358a4-firebase-adminsdk-fbsvc-cce5ceefc9.json
 
+# AI tool config directories
+.agents/
+.codebuddy/
+.commandcode/
+.continue/
+.crush/
+.factory/
+.goose/
+.junie/
+.kilocode/
+.kiro/
+.kode/
+.mcpjam/
+.mux/
+.neovate/
+.openhands/
+.pochi/
+.qoder/
+.qwen/
+.roo/
+.trae/
+.windsurf/
+.zencoder/
+skills/
+
 # next-pwa generated files
 public/sw.js
 public/workbox-*.js
